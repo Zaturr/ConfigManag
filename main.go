@@ -54,4 +54,10 @@ func main() {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
+
+	loading := src.NewLoadingModel("Cargando Configuracion...")
+	if _, err := tea.NewProgram(loading).Run(); err != nil {
+		fmt.Println("Se presento un error al cargar la configuracion:", err)
+		os.Exit(1)
+	}
 }
