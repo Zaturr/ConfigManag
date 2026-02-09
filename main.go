@@ -83,13 +83,8 @@ func main() {
 			continue
 		}
 		code, name, ip := row[0], row[1], row[2]
-		activar := true
-		if b, ok := cfg[code]; ok {
-			activar = b.ActivarMS
-		}
 		editItems = append(editItems, src.EditActivarItem{
 			Code: code, Name: name, IP: ip,
-			ActivarMS: activar,
 		})
 	}
 
@@ -100,7 +95,11 @@ func main() {
 		os.Exit(1)
 	}
 	editModel = editFinal.(src.EditActivarModel)
-	editItems = editModel.GetItems()
+	activarTodos, cancelled := editModel.GetActivarTodos()
+	if cancelled {
+		fmt.Println("Cancelado. La configuración no se modifica.")
+		return
+	}
 
 	for _, it := range editItems {
 		entry, exists := cfg[it.Code]
@@ -111,7 +110,7 @@ func main() {
 				IP:       it.IP,
 			}
 		}
-		entry.ActivarMS = it.ActivarMS
+		entry.ActivarMS = activarTodos
 		cfg[it.Code] = entry
 	}
 

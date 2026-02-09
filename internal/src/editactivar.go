@@ -12,9 +12,15 @@ type EditActivarItem struct {
 	ActivarMS bool
 }
 
+const (
+	OpcionSi = 0
+	OpcionNo = 1
+)
+
 type EditActivarModel struct {
-	Items  []EditActivarItem
-	Cursor int
+	Items     []EditActivarItem
+	Cursor    int
+	Cancelled bool
 }
 
 var editStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("240"))
@@ -33,24 +39,16 @@ func (m EditActivarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
+			m.Cancelled = true
 			return m, tea.Quit
-		case "k":
+		case "k", "enter":
+			m.Cancelled = false
 			return m, tea.Quit
-		case " ", "enter":
-			if len(m.Items) == 0 {
-				return m, nil
-			}
-			m.Items[m.Cursor].ActivarMS = !m.Items[m.Cursor].ActivarMS
+		case "left", "h":
+			m.Cursor = OpcionSi
 			return m, nil
-		case "up":
-			if m.Cursor > 0 {
-				m.Cursor--
-			}
-			return m, nil
-		case "down", "j":
-			if m.Cursor < len(m.Items)-1 {
-				m.Cursor++
-			}
+		case "right", "l":
+			m.Cursor = OpcionNo
 			return m, nil
 		}
 	}
@@ -58,28 +56,31 @@ func (m EditActivarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditActivarModel) View() string {
-	title := "  Seleccione el banco que desea activar el microservicio de msNotification\n\n\n"
+	title := "  ¿Activar microservicio (activar_ms) para los bancos seleccionados?\n\n"
+	title += "  Bancos seleccionados:\n"
 
 	if len(m.Items) == 0 {
-		return editStyle.Render(title + "  No hay bancos seleccionados.\n\n" + editHelpStyle.Render("  K = salir"))
+		return editStyle.Render(title + "  (ninguno)\n\n" + editHelpStyle.Render("  K = salir"))
 	}
 
-	var list string
-	for i, it := range m.Items {
-		mark := "[ ]"
-		if it.ActivarMS {
-			mark = "[x]"
-		}
-		line := "  " + mark + "  " + it.Code + "  " + it.Name + "  activar_ms: " + mark + "\n"
-		if i == m.Cursor {
-			line = "  > " + mark + "  " + it.Code + "  " + it.Name + "  activar_ms: " + mark + "\n"
-		}
-		list += line
+	for _, it := range m.Items {
+		title += "    " + it.Code + "  " + it.Name + "\n"
+	}
+	title += "  Desea activar o desactivar el microservicio para estos bancos\n"
+	si := "  Activar "
+	no := "  Desactivar "
+	if m.Cursor == OpcionSi {
+		si = "  > Activar "
+	} else {
+		no = "  > Desactivar "
 	}
 
-	return editStyle.Render(title + list + "\n" + editHelpStyle.Render("  Espacio = alternar   K = guardar y salir"))
+	title += "\n  " + si + "    " + no + "\n\n"
+	title += editHelpStyle.Render("  ←/→ o h/l = elegir   K o Enter = confirmar   q = cancelar")
+
+	return editStyle.Render(title)
 }
 
-func (m EditActivarModel) GetItems() []EditActivarItem {
-	return m.Items
+func (m EditActivarModel) GetActivarTodos() (activar bool, cancelled bool) {
+	return m.Cursor == OpcionSi, m.Cancelled
 }
