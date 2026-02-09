@@ -9,11 +9,50 @@ import (
 var tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("240"))
 
 type TableModel struct {
-	Table table.Model
+	Table     table.Model
+	Selectmap map[int]struct{}
+	BaseRows  []table.Row // copia de las filas originales para aplicar estilo sin perder datos
 }
 
 func NewTableModel(t table.Model) TableModel {
-	return TableModel{Table: t}
+	selectmap := make(map[int]struct{})
+	base := t.Rows()
+	baseRows := make([]table.Row, len(base))
+	for i, row := range base {
+		baseRows[i] = make(table.Row, len(row))
+		copy(baseRows[i], row)
+	}
+	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows}
+}
+
+func (m TableModel) applySelectionMarkers() []table.Row {
+	out := make([]table.Row, len(m.BaseRows))
+	for i, row := range m.BaseRows {
+		out[i] = make(table.Row, len(row))
+		copy(out[i], row)
+		if _, ok := m.Selectmap[i]; ok {
+			out[i][0] = "[x]"
+		} else {
+			out[i][0] = "[ ]"
+		}
+	}
+	return out
+}
+
+// SelectedRows devuelve las filas marcadas sin la columna "Sel" (codigo, nombre, ip)
+func (m TableModel) SelectedRows() []table.Row {
+	var out []table.Row
+	for idx := range m.Selectmap {
+		if idx >= 0 && idx < len(m.BaseRows) {
+			row := m.BaseRows[idx]
+			if len(row) > 1 {
+				out = append(out, row[1:]) // quitar columna [ ]/[x]
+			} else {
+				out = append(out, row)
+			}
+		}
+	}
+	return out
 }
 
 func (m TableModel) Init() tea.Cmd {
@@ -33,14 +72,25 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "enter":
+		case "k":
 			return m, tea.Quit
+
+		case " ", "enter":
+			idx := m.Table.Cursor()
+			if _, ok := m.Selectmap[idx]; ok {
+				delete(m.Selectmap, idx)
+			} else {
+				m.Selectmap[idx] = struct{}{}
+			}
+			(&m.Table).SetRows(m.applySelectionMarkers())
+			return m, nil
 		}
+
 	}
 	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
 }
 
 func (m TableModel) View() string {
-	return tableStyle.Render(m.Table.View()) + "\n"
+	return tableStyle.Render(m.Table.View()) + "\npresione Espacio/Enter = marcar, K = avanzar"
 }
