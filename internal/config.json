@@ -1,0 +1,56 @@
+{
+  "0102": {
+    "nombre": "Banco de Venezuela",
+    "activar_ms": true,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0105": {
+    "nombre": "Banco Mercantil",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0108": {
+    "nombre": "Provincial",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0114": {
+    "nombre": "Bancaribe",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0134": {
+    "nombre": "Banesco",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0151": {
+    "nombre": "BFC",
+    "activar_ms": true,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0169": {
+    "nombre": "R4",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0172": {
+    "nombre": "Bancamiga",
+    "activar_ms": false,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  },
+  "0191": {
+    "nombre": "BNC",
+    "activar_ms": true,
+    "endpoint": "http://192.168.120.109:8080/api",
+    "ip": "192.168.120.109"
+  }
+}

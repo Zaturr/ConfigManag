@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"v2/internal/handler"
 	"v2/internal/src"
 )
 
@@ -51,6 +52,7 @@ func main() {
 	t.SetStyles(s)
 
 	m := src.NewTableModel(t)
+
 	finalModel, err := tea.NewProgram(m).Run()
 	if err != nil {
 		fmt.Println("Error running program:", err)
@@ -64,7 +66,62 @@ func main() {
 	}
 
 	selectedRows := tbl.SelectedRows()
-	_ = selectedRows
+	if len(selectedRows) == 0 {
+		fmt.Println("No se seleccionó ningún banco. La configuración no se modifica.")
+		return
+	}
+
+	cfg, err := handler.LoadConfig()
+	if err != nil {
+		fmt.Println("Error al cargar configuración:", err)
+		os.Exit(1)
+	}
+
+	var editItems []src.EditActivarItem
+	for _, row := range selectedRows {
+		if len(row) < 3 {
+			continue
+		}
+		code, name, ip := row[0], row[1], row[2]
+		activar := true
+		if b, ok := cfg[code]; ok {
+			activar = b.ActivarMS
+		}
+		editItems = append(editItems, src.EditActivarItem{
+			Code: code, Name: name, IP: ip,
+			ActivarMS: activar,
+		})
+	}
+
+	editModel := src.NewEditActivarModel(editItems)
+	editFinal, err := tea.NewProgram(editModel).Run()
+	if err != nil {
+		fmt.Println("Error en pantalla de edición:", err)
+		os.Exit(1)
+	}
+	editModel = editFinal.(src.EditActivarModel)
+	editItems = editModel.GetItems()
+
+	for _, it := range editItems {
+		entry, exists := cfg[it.Code]
+		if !exists {
+			entry = handler.Bancos{
+				Nombre:   it.Name,
+				Endpoint: "http://" + it.IP + ":8080/api",
+				IP:       it.IP,
+			}
+		}
+		entry.ActivarMS = it.ActivarMS
+		cfg[it.Code] = entry
+	}
+
+	if err := handler.SaveConfig(cfg); err != nil {
+		fmt.Println("Error al guardar configuración:", err)
+		os.Exit(1)
+	}
+
+	configPath, _ := handler.GetConfigPath()
+	fmt.Println("\n\nConfiguración guardada en:", configPath)
 
 	loading := src.NewLoadingModel("Cargando Configuracion...")
 	if _, err := tea.NewProgram(loading).Run(); err != nil {
@@ -72,5 +129,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("filas seleccionadas: %v\n\n\n", selectedRows)
+	fmt.Println("Listo.")
 }

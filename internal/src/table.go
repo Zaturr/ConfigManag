@@ -11,7 +11,7 @@ var tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).Border
 type TableModel struct {
 	Table     table.Model
 	Selectmap map[int]struct{}
-	BaseRows  []table.Row // copia de las filas originales para aplicar estilo sin perder datos
+	BaseRows  []table.Row
 }
 
 func NewTableModel(t table.Model) TableModel {
@@ -25,7 +25,7 @@ func NewTableModel(t table.Model) TableModel {
 	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows}
 }
 
-func (m TableModel) applySelectionMarkers() []table.Row {
+func (m TableModel) ApplySelectionMarkers() []table.Row {
 	out := make([]table.Row, len(m.BaseRows))
 	for i, row := range m.BaseRows {
 		out[i] = make(table.Row, len(row))
@@ -38,15 +38,13 @@ func (m TableModel) applySelectionMarkers() []table.Row {
 	}
 	return out
 }
-
-// SelectedRows devuelve las filas marcadas sin la columna "Sel" (codigo, nombre, ip)
 func (m TableModel) SelectedRows() []table.Row {
 	var out []table.Row
 	for idx := range m.Selectmap {
 		if idx >= 0 && idx < len(m.BaseRows) {
 			row := m.BaseRows[idx]
 			if len(row) > 1 {
-				out = append(out, row[1:]) // quitar columna [ ]/[x]
+				out = append(out, row[1:])
 			} else {
 				out = append(out, row)
 			}
@@ -82,7 +80,7 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.Selectmap[idx] = struct{}{}
 			}
-			(&m.Table).SetRows(m.applySelectionMarkers())
+			(&m.Table).SetRows(m.ApplySelectionMarkers())
 			return m, nil
 		}
 
