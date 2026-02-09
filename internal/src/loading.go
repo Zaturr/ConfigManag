@@ -14,6 +14,11 @@ const (
 	maxWidth = 80
 )
 
+const (
+	progressColorStart = "#0055ff"
+	progressColorEnd   = "#00d4ff"
+)
+
 var helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render
 
 type tickMsg time.Time
@@ -25,7 +30,9 @@ type LoadingModel struct {
 
 func NewLoadingModel(description string) LoadingModel {
 	return LoadingModel{
-		Progress:    progress.New(progress.WithDefaultGradient()),
+		Progress: progress.New(
+			progress.WithGradient(progressColorStart, progressColorEnd),
+		),
 		Description: description,
 	}
 }
