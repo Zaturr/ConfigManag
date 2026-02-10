@@ -30,7 +30,9 @@ func main() {
 		return
 	}
 
-	selectedRows, err := runBankTable()
+	// Casos 1 y 2: un solo banco; caso 0: varios
+	singleSelect := idx == 1 || idx == 2
+	selectedRows, err := runBankTable(singleSelect)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
@@ -47,25 +49,26 @@ func main() {
 	}
 
 	switch idx {
+
+	// Activar/Desactivar MS
 	case 0:
-		// Activar/Desactivar MS
-		var editItems []src.EditActivarItem
+		var editItems []handler.EditActivarItem
 		for _, row := range selectedRows {
 			if len(row) < 3 {
 				continue
 			}
 			code, name, ip := row[0], row[1], row[2]
-			editItems = append(editItems, src.EditActivarItem{
+			editItems = append(editItems, handler.EditActivarItem{
 				Code: code, Name: name, IP: ip,
 			})
 		}
-		editModel := src.NewEditActivarModel(editItems)
+		editModel := handler.NewEditActivarModel(editItems)
 		editFinal, err := tea.NewProgram(editModel).Run()
 		if err != nil {
 			fmt.Println("Error en pantalla de edición:", err)
 			os.Exit(1)
 		}
-		editModel = editFinal.(src.EditActivarModel)
+		editModel = editFinal.(handler.EditActivarModel)
 		activarTodos, cancelled := editModel.GetActivarTodos()
 		if cancelled {
 			fmt.Println("Cancelado. La configuración no se modifica.")
@@ -83,15 +86,17 @@ func main() {
 			entry.ActivarMS = activarTodos
 			cfg[it.Code] = entry
 		}
+
+	// Cambiar endpoint
 	case 1:
-		// Cambiar endpoint
-		endpointModel := src.NewEditEndpointModel("http://192.168.1.1:8080/api")
+
+		endpointModel := handler.NewEditEndpointModel("http://192.168.1.1:8080/api")
 		epFinal, err := tea.NewProgram(endpointModel).Run()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
-		epModel := epFinal.(src.EditEndpointModel)
+		epModel := epFinal.(handler.EditEndpointModel)
 		newEndpoint, cancelled := epModel.GetEndpoint()
 		if cancelled || newEndpoint == "" {
 			fmt.Println("Cancelado o endpoint vacío. La configuración no se modifica.")
@@ -110,6 +115,37 @@ func main() {
 				}
 			}
 			entry.Endpoint = newEndpoint
+			cfg[code] = entry
+		}
+
+	// Cambiar IP
+	case 2:
+
+		IPModel := handler.NewEditIPModel("192.168.1.1")
+		IPFinal, err := tea.NewProgram(IPModel).Run()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+		ipModel := IPFinal.(handler.EditIPModel)
+		newIP, cancelled := ipModel.GetIP()
+		if cancelled || newIP == "" {
+			fmt.Println("Cancelado o IP vacío. La configuración no se modifica.")
+			return
+		}
+		for _, row := range selectedRows {
+			if len(row) < 1 {
+				continue
+			}
+			code := row[0]
+			entry, exists := cfg[code]
+			if !exists {
+				entry = handler.Bancos{}
+				if len(row) >= 3 {
+					entry.Nombre, entry.IP = row[1], row[2]
+				}
+			}
+			entry.IP = newIP
 			cfg[code] = entry
 		}
 	default:
@@ -133,7 +169,7 @@ func main() {
 	fmt.Println("Listo.")
 }
 
-func runBankTable() ([]table.Row, error) {
+func runBankTable(singleSelect bool) ([]table.Row, error) {
 	columns := []table.Column{
 		{Title: " ", Width: 4},
 		{Title: "Codigo", Width: 10},
@@ -168,7 +204,12 @@ func runBankTable() ([]table.Row, error) {
 		Background(lipgloss.Color("20")).
 		Bold(false)
 	t.SetStyles(s)
-	m := src.NewTableModel(t)
+	var m src.TableModel
+	if singleSelect {
+		m = src.NewTableModelSingleSelect(t)
+	} else {
+		m = src.NewTableModel(t)
+	}
 	finalModel, err := tea.NewProgram(m).Run()
 	if err != nil {
 		return nil, err

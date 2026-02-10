@@ -1,4 +1,4 @@
-package src
+package handler
 
 import (
 	tea "github.com/charmbracelet/bubbletea"

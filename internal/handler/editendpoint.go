@@ -1,4 +1,4 @@
-package src
+package handler
 
 import (
 	"github.com/charmbracelet/bubbles/textinput"

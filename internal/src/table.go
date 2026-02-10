@@ -9,12 +9,21 @@ import (
 var tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("240"))
 
 type TableModel struct {
-	Table     table.Model
-	Selectmap map[int]struct{}
-	BaseRows  []table.Row
+	Table        table.Model
+	Selectmap    map[int]struct{}
+	BaseRows     []table.Row
+	SingleSelect bool
 }
 
 func NewTableModel(t table.Model) TableModel {
+	return newTableModel(t, false)
+}
+
+func NewTableModelSingleSelect(t table.Model) TableModel {
+	return newTableModel(t, true)
+}
+
+func newTableModel(t table.Model, singleSelect bool) TableModel {
 	selectmap := make(map[int]struct{})
 	base := t.Rows()
 	baseRows := make([]table.Row, len(base))
@@ -22,7 +31,7 @@ func NewTableModel(t table.Model) TableModel {
 		baseRows[i] = make(table.Row, len(row))
 		copy(baseRows[i], row)
 	}
-	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows}
+	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows, SingleSelect: singleSelect}
 }
 
 func (m TableModel) ApplySelectionMarkers() []table.Row {
@@ -75,6 +84,11 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case " ", "enter":
 			idx := m.Table.Cursor()
+			if m.SingleSelect {
+				m.Selectmap = map[int]struct{}{idx: {}}
+				(&m.Table).SetRows(m.ApplySelectionMarkers())
+				return m, tea.Quit
+			}
 			if _, ok := m.Selectmap[idx]; ok {
 				delete(m.Selectmap, idx)
 			} else {
@@ -90,5 +104,9 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	return tableStyle.Render(m.Table.View()) + "\npresione Espacio/Enter = marcar, K = avanzar"
+	help := "presione Espacio/Enter = marcar, K = avanzar"
+	if m.SingleSelect {
+		help = "Enter = elegir un banco"
+	}
+	return tableStyle.Render(m.Table.View()) + "\n" + help
 }
