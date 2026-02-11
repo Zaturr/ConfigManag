@@ -49,7 +49,7 @@ func main() {
 		return
 	}
 
-	// Casos 1 y 2: un solo banco; caso 0: varios
+	// Casos 1 y 2: un solo banco caso 0: varios
 	singleSelect := idx == 1 || idx == 2
 	selectedRows, err := runBankTable(singleSelect)
 	if err != nil {

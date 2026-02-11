@@ -52,7 +52,7 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m MenuModel) View() string {
 	var b strings.Builder
-	b.WriteString("¿Qué desea modificar?\n\n")
+	b.WriteString("¿En que ambiente quiere realizar modificaciones?\n\n")
 	for i, op := range m.Opciones {
 		cursor := "  "
 		if i == m.Cursor {

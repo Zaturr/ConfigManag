@@ -6,8 +6,6 @@ import (
 	"os"
 )
 
-// LoadConfig loads the config for the given environment (EnvProduccion or EnvDesarrollo).
-// The JSON file must have a parent key "Produccion" or "Desarrollo" respectively.
 func LoadConfig(env string) (Config, error) {
 	path, err := GetConfigPath(env)
 	if err != nil {
@@ -44,8 +42,6 @@ func LoadConfig(env string) (Config, error) {
 	return file.Produccion, nil
 }
 
-// SaveConfig saves cfg to the config file for the given environment,
-// writing only the corresponding parent key (Produccion or Desarrollo).
 func SaveConfig(env string, cfg Config) error {
 	path, err := GetConfigPath(env)
 	if err != nil {
