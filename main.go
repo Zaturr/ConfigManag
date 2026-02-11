@@ -13,6 +13,25 @@ import (
 )
 
 func main() {
+	// Elegir entorno (Producción o Desarrollo)
+	menuEntorno := src.NewMenuModel([]string{"Producción", "Desarrollo"})
+	envFinal, err := tea.NewProgram(menuEntorno).Run()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	envMenu := envFinal.(src.MenuModel)
+	envIdx := envMenu.SelectedIndex()
+	if envIdx < 0 {
+		return
+	}
+	var env string
+	if envIdx == 0 {
+		env = handler.EnvProduccion
+	} else {
+		env = handler.EnvDesarrollo
+	}
+
 	opcionesMenu := []string{
 		"Activar/Desactivar MS en bancos",
 		"Cambiar configuracion del endpoint",
@@ -42,7 +61,7 @@ func main() {
 		return
 	}
 
-	cfg, err := handler.LoadConfig()
+	cfg, err := handler.LoadConfig(env)
 	if err != nil {
 		fmt.Println("Error al cargar configuración:", err)
 		os.Exit(1)
@@ -152,12 +171,12 @@ func main() {
 		return
 	}
 
-	if err := handler.SaveConfig(cfg); err != nil {
+	if err := handler.SaveConfig(env, cfg); err != nil {
 		fmt.Println("Error al guardar configuración:", err)
 		os.Exit(1)
 	}
 
-	configPath, _ := handler.GetConfigPath()
+	configPath, _ := handler.GetConfigPath(env)
 	fmt.Println("\n\nConfiguración guardada en:", configPath)
 
 	loading := src.NewLoadingModel("Cargando Configuracion...")

@@ -3,37 +3,36 @@ package handler
 import (
 	"os"
 	"path/filepath"
-	"strings"
 )
 
-const ConfigRelPath = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\config"
+const (
+	PathProduccion = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\PROD"
+	PathDesarrollo = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\CERT"
+	EnvProduccion  = "produccion"
+	EnvDesarrollo  = "desarrollo"
+)
 
-func resolveConfigPath(p string, cwd string) string {
-	if p == "" {
-		return ""
+func GetConfigPath(env string) (string, error) {
+	if env == "" {
+		env = EnvProduccion
 	}
-	path := p
-	if !filepath.IsAbs(p) {
-		path = filepath.Join(cwd, p)
+	var dir string
+	switch env {
+	case EnvDesarrollo:
+		dir = PathDesarrollo
+	case EnvProduccion:
+		dir = PathProduccion
+	default:
+		dir = PathProduccion
 	}
-	if !strings.HasSuffix(strings.ToLower(path), ".json") {
-		path = filepath.Join(path, "config.json")
+	if env == EnvProduccion {
+		if override := os.Getenv("CONFIG_PATH_PROD"); override != "" {
+			dir = override
+		}
+	} else if override := os.Getenv("CONFIG_PATH_CERT"); override != "" {
+		dir = override
 	}
-	return path
-}
-
-func GetConfigPath() (string, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-
-	p := os.Getenv("CONFIG_PATH")
-	if p == "" {
-		p = ConfigRelPath
-	}
-
-	configPath := resolveConfigPath(p, cwd)
+	configPath := filepath.Join(filepath.Clean(dir), "config.json")
 	configDir := filepath.Dir(configPath)
 	if err := os.MkdirAll(configDir, 0755); err != nil {
 		return "", err

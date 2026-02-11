@@ -54,7 +54,7 @@ func (m LoadingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case tickMsg:
-		if m.Progress.Percent() == 2.0 {
+		if m.Progress.Percent() == 1.0 {
 			return m, tea.Quit
 		}
 		cmd := m.Progress.IncrPercent(1)
