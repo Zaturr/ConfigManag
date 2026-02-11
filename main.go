@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -49,9 +50,15 @@ func main() {
 		return
 	}
 
+	cfg, err := handler.LoadConfig(env)
+	if err != nil {
+		fmt.Println("Error al cargar configuración:", err)
+		os.Exit(1)
+	}
+
 	// Casos 1 y 2: un solo banco caso 0: varios
 	singleSelect := idx == 1 || idx == 2
-	selectedRows, err := runBankTable(singleSelect)
+	selectedRows, err := runBankTable(cfg, singleSelect)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
@@ -59,12 +66,6 @@ func main() {
 	if len(selectedRows) == 0 {
 		fmt.Println("No se seleccionó ningún banco. La configuración no se modifica.")
 		return
-	}
-
-	cfg, err := handler.LoadConfig(env)
-	if err != nil {
-		fmt.Println("Error al cargar configuración:", err)
-		os.Exit(1)
 	}
 
 	switch idx {
@@ -188,23 +189,25 @@ func main() {
 	fmt.Println("Listo.")
 }
 
-func runBankTable(singleSelect bool) ([]table.Row, error) {
+func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
+	if len(cfg) == 0 {
+		return nil, fmt.Errorf("no hay bancos en la configuración del ambiente seleccionado")
+	}
 	columns := []table.Column{
 		{Title: " ", Width: 4},
 		{Title: "Codigo", Width: 10},
 		{Title: "Nombre de Banco", Width: 30},
 		{Title: "ip del servidor", Width: 20},
 	}
-	rows := []table.Row{
-		{"[ ]", "0102", "Banco de Venezuela", "192.168.120.109"},
-		{"[ ]", "0191", "BNC", "192.168.120.109"},
-		{"[ ]", "0151", "BFC", "192.168.120.109"},
-		{"[ ]", "0172", "Bancamiga", "192.168.120.109"},
-		{"[ ]", "0105", "Banco Mercantil", "192.168.120.109"},
-		{"[ ]", "0108", "Provincial", "192.168.120.109"},
-		{"[ ]", "0134", "Banesco", "192.168.120.109"},
-		{"[ ]", "0114", "Bancaribe", "192.168.120.109"},
-		{"[ ]", "0169", "R4", "192.168.120.109"},
+	codes := make([]string, 0, len(cfg))
+	for code := range cfg {
+		codes = append(codes, code)
+	}
+	sort.Strings(codes)
+	rows := make([]table.Row, 0, len(codes))
+	for _, code := range codes {
+		b := cfg[code]
+		rows = append(rows, table.Row{"[ ]", code, b.Nombre, b.IP})
 	}
 	t := table.New(
 		table.WithColumns(columns),

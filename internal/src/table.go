@@ -82,6 +82,18 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "k":
 			return m, tea.Quit
 
+		case "a":
+			if !m.SingleSelect {
+				if len(m.Selectmap) == len(m.BaseRows) {
+					m.Selectmap = make(map[int]struct{})
+				} else {
+					for i := range m.BaseRows {
+						m.Selectmap[i] = struct{}{}
+					}
+				}
+				(&m.Table).SetRows(m.ApplySelectionMarkers())
+				return m, nil
+			}
 		case " ", "enter":
 			idx := m.Table.Cursor()
 			if m.SingleSelect {
@@ -104,7 +116,7 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	help := "presione Espacio/Enter = marcar, K = avanzar"
+	help := "Espacio/Enter = marcar   A = seleccionar/deseleccionar todos   K = avanzar"
 	if m.SingleSelect {
 		help = "Enter = elegir un banco"
 	}
