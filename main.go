@@ -14,179 +14,209 @@ import (
 )
 
 func main() {
-	// Elegir entorno (Producción o Desarrollo)
-	menuEntorno := src.NewMenuModel([]string{"Producción", "Desarrollo"})
-	envFinal, err := tea.NewProgram(menuEntorno).Run()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-	envMenu := envFinal.(src.MenuModel)
-	envIdx := envMenu.SelectedIndex()
-	if envIdx < 0 {
-		return
-	}
-	var env string
-	if envIdx == 0 {
-		env = handler.EnvProduccion
-	} else {
-		env = handler.EnvDesarrollo
-	}
-
 	opcionesMenu := []string{
 		"Activar/Desactivar MS en bancos",
 		"Cambiar configuracion del endpoint",
 		"Cambiar configuracion de la ip",
-	}
-	menuModel := src.NewMenuModel(opcionesMenu)
-	menuFinal, err := tea.NewProgram(menuModel).Run()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-	menu := menuFinal.(src.MenuModel)
-	idx := menu.SelectedIndex()
-	if idx < 0 {
-		return
+		"Volver al menu anterior",
 	}
 
-	cfg, err := handler.LoadConfig(env)
-	if err != nil {
-		fmt.Println("Error al cargar configuración:", err)
-		os.Exit(1)
-	}
-
-	// Casos 1 y 2: un solo banco caso 0: varios
-	singleSelect := idx == 1 || idx == 2
-	selectedRows, err := runBankTable(cfg, singleSelect)
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-	if len(selectedRows) == 0 {
-		fmt.Println("No se seleccionó ningún banco. La configuración no se modifica.")
-		return
-	}
-
-	switch idx {
-
-	// Activar/Desactivar MS
-	case 0:
-		var editItems []handler.EditActivarItem
-		for _, row := range selectedRows {
-			if len(row) < 3 {
-				continue
-			}
-			code, name, ip := row[0], row[1], row[2]
-			editItems = append(editItems, handler.EditActivarItem{
-				Code: code, Name: name, IP: ip,
-			})
-		}
-		editModel := handler.NewEditActivarModel(editItems)
-		editFinal, err := tea.NewProgram(editModel).Run()
-		if err != nil {
-			fmt.Println("Error en pantalla de edición:", err)
-			os.Exit(1)
-		}
-		editModel = editFinal.(handler.EditActivarModel)
-		activarTodos, cancelled := editModel.GetActivarTodos()
-		if cancelled {
-			fmt.Println("Cancelado. La configuración no se modifica.")
-			return
-		}
-		for _, it := range editItems {
-			entry, exists := cfg[it.Code]
-			if !exists {
-				entry = handler.Bancos{
-					Nombre:   it.Name,
-					Endpoint: "http://" + it.IP + ":8080/api",
-					IP:       it.IP,
-				}
-			}
-			entry.ActivarMS = activarTodos
-			cfg[it.Code] = entry
-		}
-
-	// Cambiar endpoint
-	case 1:
-
-		endpointModel := handler.NewEditEndpointModel("http://192.168.1.1:8080/api")
-		epFinal, err := tea.NewProgram(endpointModel).Run()
+	for {
+		// Elegir entorno (Producción, Desarrollo o Salir)
+		menuEntorno := src.NewMenuModelWithTitle("¿En qué ambiente quiere realizar modificaciones?", []string{"Producción", "Desarrollo"})
+		envFinal, err := tea.NewProgram(menuEntorno).Run()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
-		epModel := epFinal.(handler.EditEndpointModel)
-		newEndpoint, cancelled := epModel.GetEndpoint()
-		if cancelled || newEndpoint == "" {
-			fmt.Println("Cancelado o endpoint vacío. La configuración no se modifica.")
+		envMenu := envFinal.(src.MenuModel)
+		envIdx := envMenu.SelectedIndex()
+		if envIdx < 0 {
 			return
 		}
-		for _, row := range selectedRows {
-			if len(row) < 1 {
+		var env string
+		if envIdx == 0 {
+			env = handler.EnvProduccion
+		} else {
+			env = handler.EnvDesarrollo
+		}
+
+		for {
+			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)
+			menuFinal, err := tea.NewProgram(menuModel).Run()
+			if err != nil {
+				fmt.Println("Error:", err)
+				os.Exit(1)
+			}
+			menu := menuFinal.(src.MenuModel)
+			idx := menu.SelectedIndex()
+			if idx < 0 {
+				return
+			}
+			if idx == 3 {
+				break // Volver al menu anterior (repetir menú de entorno)
+			}
+
+			cfg, err := handler.LoadConfig(env)
+			if err != nil {
+				fmt.Println("Error al cargar configuración:", err)
+				os.Exit(1)
+			}
+
+			// Casos 1 y 2: un solo banco caso 0: varios
+			singleSelect := idx == 1 || idx == 2
+			selectedRows, err := runBankTable(cfg, singleSelect)
+			if err != nil {
+				fmt.Println("Error:", err)
+				os.Exit(1)
+			}
+			if len(selectedRows) == 0 {
+				// Sin selección = volver al menú de opciones
 				continue
 			}
-			code := row[0]
-			entry, exists := cfg[code]
-			if !exists {
-				entry = handler.Bancos{}
-				if len(row) >= 3 {
-					entry.Nombre, entry.IP = row[1], row[2]
+
+			switch idx {
+
+			// Activar/Desactivar MS
+			case 0:
+				primeraVez := true
+				var rowsActivar []table.Row
+				var activarTodos bool
+				for {
+					if primeraVez {
+						rowsActivar = selectedRows
+						primeraVez = false
+					} else {
+						rowsActivar, err = runBankTable(cfg, false)
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						if len(rowsActivar) == 0 {
+							break // volver al menú de opciones
+						}
+					}
+					var editItems []handler.EditActivarItem
+					for _, row := range rowsActivar {
+						if len(row) < 3 {
+							continue
+						}
+						code, name, ip := row[0], row[1], row[2]
+						editItems = append(editItems, handler.EditActivarItem{
+							Code: code, Name: name, IP: ip,
+						})
+					}
+					editModel := handler.NewEditActivarModel(editItems)
+					editFinal, err := tea.NewProgram(editModel).Run()
+					if err != nil {
+						fmt.Println("Error en pantalla de edición:", err)
+						os.Exit(1)
+					}
+					editModel = editFinal.(handler.EditActivarModel)
+					var cancelled bool
+					activarTodos, cancelled = editModel.GetActivarTodos()
+					if cancelled {
+						continue // volver a la tabla de bancos
+					}
+					for _, it := range editItems {
+						entry, exists := cfg[it.Code]
+						if !exists {
+							entry = handler.Bancos{
+								Nombre:   it.Name,
+								Endpoint: "http://" + it.IP + ":8080/api",
+								IP:       it.IP,
+							}
+						}
+						entry.ActivarMS = activarTodos
+						cfg[it.Code] = entry
+					}
+					break
 				}
+				if len(rowsActivar) == 0 {
+					continue // salió de la tabla sin elegir, volver al menú de opciones
+				}
+
+			// Cambiar endpoint
+			case 1:
+				endpointModel := handler.NewEditEndpointModel("http://192.168.1.1:8080/api")
+				epFinal, err := tea.NewProgram(endpointModel).Run()
+				if err != nil {
+					fmt.Println("Error:", err)
+					os.Exit(1)
+				}
+				epModel := epFinal.(handler.EditEndpointModel)
+				newEndpoint, cancelled := epModel.GetEndpoint()
+				if cancelled || newEndpoint == "" {
+					fmt.Println("Cancelado o endpoint vacío. La configuración no se modifica.")
+					return
+				}
+				for _, row := range selectedRows {
+					if len(row) < 1 {
+						continue
+					}
+					code := row[0]
+					entry, exists := cfg[code]
+					if !exists {
+						entry = handler.Bancos{}
+						if len(row) >= 3 {
+							entry.Nombre, entry.IP = row[1], row[2]
+						}
+					}
+					entry.Endpoint = newEndpoint
+					cfg[code] = entry
+				}
+
+			// Cambiar IP
+			case 2:
+				IPModel := handler.NewEditIPModel("192.168.1.1")
+				IPFinal, err := tea.NewProgram(IPModel).Run()
+				if err != nil {
+					fmt.Println("Error:", err)
+					os.Exit(1)
+				}
+				ipModel := IPFinal.(handler.EditIPModel)
+				newIP, cancelled := ipModel.GetIP()
+				if cancelled || newIP == "" {
+					fmt.Println("Cancelado o IP vacío. La configuración no se modifica.")
+					return
+				}
+				for _, row := range selectedRows {
+					if len(row) < 1 {
+						continue
+					}
+					code := row[0]
+					entry, exists := cfg[code]
+					if !exists {
+						entry = handler.Bancos{}
+						if len(row) >= 3 {
+							entry.Nombre, entry.IP = row[1], row[2]
+						}
+					}
+					entry.IP = newIP
+					cfg[code] = entry
+				}
+			default:
+				return
 			}
-			entry.Endpoint = newEndpoint
-			cfg[code] = entry
-		}
 
-	// Cambiar IP
-	case 2:
+			if err := handler.SaveConfig(env, cfg); err != nil {
+				fmt.Println("Error al guardar configuración:", err)
+				os.Exit(1)
+			}
 
-		IPModel := handler.NewEditIPModel("192.168.1.1")
-		IPFinal, err := tea.NewProgram(IPModel).Run()
-		if err != nil {
-			fmt.Println("Error:", err)
-			os.Exit(1)
-		}
-		ipModel := IPFinal.(handler.EditIPModel)
-		newIP, cancelled := ipModel.GetIP()
-		if cancelled || newIP == "" {
-			fmt.Println("Cancelado o IP vacío. La configuración no se modifica.")
+			configPath, _ := handler.GetConfigPath(env)
+			fmt.Println("\n\nConfiguración guardada en:", configPath)
+
+			loading := src.NewLoadingModel("Cargando Configuracion...")
+			if _, err := tea.NewProgram(loading).Run(); err != nil {
+				fmt.Println("Se presento un error al cargar la configuracion:", err)
+				os.Exit(1)
+			}
+
+			fmt.Println("Listo.")
 			return
 		}
-		for _, row := range selectedRows {
-			if len(row) < 1 {
-				continue
-			}
-			code := row[0]
-			entry, exists := cfg[code]
-			if !exists {
-				entry = handler.Bancos{}
-				if len(row) >= 3 {
-					entry.Nombre, entry.IP = row[1], row[2]
-				}
-			}
-			entry.IP = newIP
-			cfg[code] = entry
-		}
-	default:
-		return
 	}
-
-	if err := handler.SaveConfig(env, cfg); err != nil {
-		fmt.Println("Error al guardar configuración:", err)
-		os.Exit(1)
-	}
-
-	configPath, _ := handler.GetConfigPath(env)
-	fmt.Println("\n\nConfiguración guardada en:", configPath)
-
-	loading := src.NewLoadingModel("Cargando Configuracion...")
-	if _, err := tea.NewProgram(loading).Run(); err != nil {
-		fmt.Println("Se presento un error al cargar la configuracion:", err)
-		os.Exit(1)
-	}
-
-	fmt.Println("Listo.")
 }
 
 func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {

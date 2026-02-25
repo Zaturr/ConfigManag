@@ -76,7 +76,7 @@ func (m EditActivarModel) View() string {
 	}
 
 	title += "\n  " + si + "    " + no + "\n\n"
-	title += editHelpStyle.Render("  ←/→ o h/l = elegir   K o Enter = confirmar   q = cancelar")
+	title += editHelpStyle.Render("  ←/→ o h/l = elegir   K o Enter = confirmar   q = volver")
 
 	return editStyle.Render(title)
 }

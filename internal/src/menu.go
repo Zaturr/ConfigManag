@@ -8,6 +8,7 @@ import (
 )
 
 type MenuModel struct {
+	Titulo   string
 	Opciones []string
 	Cursor   int
 	Salir    bool
@@ -15,6 +16,11 @@ type MenuModel struct {
 
 func NewMenuModel(opciones []string) MenuModel {
 	return MenuModel{Opciones: opciones, Cursor: 0}
+}
+
+// NewMenuModelWithTitle crea un menú con título personalizado.
+func NewMenuModelWithTitle(titulo string, opciones []string) MenuModel {
+	return MenuModel{Titulo: titulo, Opciones: opciones, Cursor: 0}
 }
 
 func (m MenuModel) Init() tea.Cmd {
@@ -52,7 +58,11 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m MenuModel) View() string {
 	var b strings.Builder
-	b.WriteString("¿En que ambiente quiere realizar modificaciones?\n\n")
+	titulo := m.Titulo
+	if titulo == "" {
+		titulo = "¿En que ambiente quiere realizar modificaciones?"
+	}
+	b.WriteString(titulo + "\n\n")
 	for i, op := range m.Opciones {
 		cursor := "  "
 		if i == m.Cursor {

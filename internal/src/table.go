@@ -116,9 +116,9 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	help := "Espacio/Enter = marcar   A = seleccionar/deseleccionar todos   K = avanzar"
+	help := "Espacio/Enter = marcar   A = todos   K = confirmar   Q = volver"
 	if m.SingleSelect {
-		help = "Enter = elegir un banco"
+		help = "Enter = elegir un banco   Q = volver"
 	}
 	return tableStyle.Render(m.Table.View()) + "\n" + help
 }
