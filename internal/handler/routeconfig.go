@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	PathProduccion = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\PROD"
-	PathDesarrollo = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\CERT"
+	PathProduccion = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\Solest Config\\PROD"
+	PathDesarrollo = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\Solest Config\\CERT"
 	EnvProduccion  = "produccion"
 	EnvDesarrollo  = "desarrollo"
 )

@@ -5,15 +5,23 @@ import (
 	"os"
 	"sort"
 
+	"v2/internal/handler"
+	"v2/internal/src"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-
-	"v2/internal/handler"
-	"v2/internal/src"
 )
 
 func main() {
+
+	_, err := handler.GetPassword()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	fmt.Println("Contraseña correcta")
+
 	opcionesMenu := []string{
 		"Activar/Desactivar MS en bancos",
 		"Cambiar configuracion del endpoint",
@@ -116,8 +124,12 @@ func main() {
 					var cancelled bool
 					activarTodos, cancelled = editModel.GetActivarTodos()
 					if cancelled {
-						continue // volver a la tabla de bancos
+						continue
 					}
+
+					_, err = handler.GetPassword()
+					fmt.Println("Contraseña correcta")
+
 					for _, it := range editItems {
 						entry, exists := cfg[it.Code]
 						if !exists {
@@ -133,7 +145,7 @@ func main() {
 					break
 				}
 				if len(rowsActivar) == 0 {
-					continue // salió de la tabla sin elegir, volver al menú de opciones
+					continue
 				}
 
 			// Cambiar endpoint
@@ -150,6 +162,9 @@ func main() {
 					fmt.Println("Cancelado o endpoint vacío. La configuración no se modifica.")
 					return
 				}
+
+				_, err = handler.GetPassword()
+				fmt.Println("Contraseña correcta")
 				for _, row := range selectedRows {
 					if len(row) < 1 {
 						continue
@@ -180,6 +195,10 @@ func main() {
 					fmt.Println("Cancelado o IP vacío. La configuración no se modifica.")
 					return
 				}
+
+				_, err = handler.GetPassword()
+				fmt.Println("Contraseña correcta")
+
 				for _, row := range selectedRows {
 					if len(row) < 1 {
 						continue

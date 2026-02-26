@@ -13,3 +13,7 @@ type Bancos struct {
 }
 
 type Config map[string]Bancos
+
+type Credentials struct {
+	Password string `json:"password"`
+}
