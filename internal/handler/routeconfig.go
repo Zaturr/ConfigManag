@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	PathProduccion = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\Solest Config\\PROD"
-	PathDesarrollo = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\Solest Config\\CERT"
+	PathProduccion = "PROD"
+	PathDesarrollo = "CERT"
 	EnvProduccion  = "produccion"
 	EnvDesarrollo  = "desarrollo"
 )
@@ -33,10 +33,10 @@ func GetConfigPath(env string) (string, error) {
 		dir = override
 	}
 	configPath := filepath.Join(filepath.Clean(dir), "config.json")
-	configDir := filepath.Dir(configPath)
-	if err := os.MkdirAll(configDir, 0755); err != nil {
-		return "", err
-	}
+	//configDir := filepath.Dir(configPath)
+	// if err := os.MkdirAll(configDir, 0755); err != nil {
+	// 	return "", err
+	// }
 	return configPath, nil
 }
 

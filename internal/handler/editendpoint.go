@@ -41,6 +41,7 @@ func (m EditEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Input, cmd = m.Input.Update(msg)
 	return m, cmd
+
 }
 
 func (m EditEndpointModel) View() string {

@@ -1,45 +1,61 @@
 package handler
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"errors"
-	"io"
+	//"io"
 	"os"
 	"reflect"
 
 	"github.com/charmbracelet/huh"
 )
 
-var ExpectedPassword = os.Getenv("CONFIG_PASSWORD")
+var ExpectedPassword = "123456" //(en caso de querer usar una contraseña hardcodeada, no se necesitarian las funciones del loadCredentialsConfig ni el init)
 
-func loadCredentialsConfig(path string) (string, error) {
-	if path == "" {
-		path = "C:\\Users\\bdsyc\\OneDrive\\Escritorio\\Solest Config\\Credentials\\config.json"
-	}
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
+//var ExpectedPassword = os.Getenv("CONFIG_PASSWORD")
 
-	data, err := io.ReadAll(f)
-	if err != nil {
-		return "", err
-	}
-	var cfg struct {
-		Password string `json:"password"`
-	}
-	if err := json.Unmarshal(data, &cfg); err != nil {
-		return "", err
-	}
-	return cfg.Password, nil
-}
-func init() {
-	pwd, err := loadCredentialsConfig("")
-	if err == nil && pwd != "" {
-		ExpectedPassword = pwd
-	}
-}
+// var (
+//
+//	credentialsConfigPath   string
+//	credentialsConfigLoaded bool
+//
+// )
+//
+//	func loadCredentialsConfig(path string) (string, error) {
+//		if path == "" {
+//			path = "Credentials\\config.json"
+//		}
+//		f, err := os.Open(path)
+//		if err != nil {
+//			return "", err
+//		}
+//		defer f.Close()
+//
+//		data, err := io.ReadAll(f)
+//		if err != nil {
+//			return "", err
+//		}
+//		var cfg struct {
+//			Password string `json:"password"`
+//		}
+//		if err := json.Unmarshal(data, &cfg); err != nil {
+//			return "", err
+//		}
+//		return cfg.Password, nil
+//	}
+//
+// func CredentialsConfigPath() string { return credentialsConfigPath }
+// func CredentialsConfigLoaded() bool { return credentialsConfigLoaded }
+//
+//	func init() {
+//		path := "Credentials\\config.json"
+//		credentialsConfigPath = path
+//		pwd, err := loadCredentialsConfig(path)
+//		if err == nil && pwd != "" {
+//			ExpectedPassword = pwd
+//			credentialsConfigLoaded = true
+//		}
+//	}
 func GetPassword() (string, error) {
 	var password string
 	expected := ExpectedPassword
