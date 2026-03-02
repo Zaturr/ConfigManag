@@ -1,56 +1,335 @@
 {
-  "0102": {
-    "nombre": "Banco de Venezuela",
-    "activar_ms": true,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0105": {
-    "nombre": "Banco Mercantil",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0108": {
-    "nombre": "Provincial",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0114": {
-    "nombre": "Bancaribe",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0134": {
-    "nombre": "Banesco",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0151": {
-    "nombre": "BFC",
-    "activar_ms": true,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0169": {
-    "nombre": "R4",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0172": {
-    "nombre": "Bancamiga",
-    "activar_ms": false,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
-  },
-  "0191": {
-    "nombre": "BNC",
-    "activar_ms": true,
-    "endpoint": "http://192.168.120.109:8080/api",
-    "ip": "192.168.120.109"
+  "Produccion": null,
+  "Desarrollo": {
+    "0001": {
+      "nombre": "bcv",
+      "endpoint": "http://192.168.120.117:8080/api",
+      "ip": "192.168.120.117",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0102": {
+      "nombre": "Banco de Venezuela",
+      "endpoint": "http://192.168.120.109:8080/api/v1",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0104": {
+      "nombre": "BVC",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0105": {
+      "nombre": "Banco Mercantil",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0108": {
+      "nombre": "Provincial",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0114": {
+      "nombre": "Bancaribe",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0115": {
+      "nombre": "Exterior",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0128": {
+      "nombre": "Caroní",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0134": {
+      "nombre": "Banesco",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0137": {
+      "nombre": "Sofitasa",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0138": {
+      "nombre": "Plaza",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0145": {
+      "nombre": "BancoEx",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0146": {
+      "nombre": "Bangente",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0151": {
+      "nombre": "BFC",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.100",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0152": {
+      "nombre": "Bandes",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0156": {
+      "nombre": "100%Banco",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0157": {
+      "nombre": "DELSUR",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0163": {
+      "nombre": "Tesoro",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0166": {
+      "nombre": "Agricola",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0168": {
+      "nombre": "Bancrecer",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0169": {
+      "nombre": "R4",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0171": {
+      "nombre": "Activo",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0172": {
+      "nombre": "Bancamiga",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.100",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0173": {
+      "nombre": "BID",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0174": {
+      "nombre": "Banplus",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0175": {
+      "nombre": "BDT",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0177": {
+      "nombre": "BANFANB",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0178": {
+      "nombre": "N58",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0191": {
+      "nombre": "BNC",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.100",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0601": {
+      "nombre": "IMCP",
+      "endpoint": "http://192.168.120.109:8080/api",
+      "ip": "192.168.120.109",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    }
   }
 }

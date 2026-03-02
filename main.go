@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"os"
 	"sort"
-
+	"v2/internal/api"
 	"v2/internal/handler"
+	"v2/internal/server"
 	"v2/internal/src"
 
+	"github.com/SOLUCIONESSYCOM/scribe"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -15,12 +17,26 @@ import (
 
 func main() {
 
+	if err := handler.Logs(); err != nil {
+		fmt.Println("Logs:", err)
+		os.Exit(1)
+	}
+	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
 	_, err := handler.GetPassword()
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
 	fmt.Println("Contraseña correcta")
+
+	cfg, _ := handler.LoadConfig(handler.EnvDesarrollo)
+	srv := server.NewServer(":8080", cfg)
+	go func() {
+		if err := srv.Run(); err != nil {
+			fmt.Println("Servidor API:", err)
+		}
+	}()
+	fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
 	opcionesMenu := []string{
 		"Activar/Desactivar MS en bancos",
@@ -30,7 +46,6 @@ func main() {
 	}
 
 	for {
-		// Elegir entorno (Producción, Desarrollo o Salir)
 		menuEntorno := src.NewMenuModelWithTitle("¿En qué ambiente quiere realizar modificaciones?", []string{"Producción", "Desarrollo"})
 		envFinal, err := tea.NewProgram(menuEntorno).Run()
 		if err != nil {
@@ -49,6 +64,15 @@ func main() {
 			env = handler.EnvDesarrollo
 		}
 
+		configPath, err := handler.GetConfigPath(env)
+		if err != nil {
+			fmt.Println("Error al obtener ruta de configuración:", err)
+			continue
+		}
+		if !handler.ConfigExists(configPath) {
+			fmt.Printf("No se encontró el archivo de configuración en la ruta %s. Verifique que se haya creado correctamente en esa ruta.\n", configPath)
+		}
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		for {
 			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)
 			menuFinal, err := tea.NewProgram(menuModel).Run()
@@ -62,12 +86,15 @@ func main() {
 				return
 			}
 			if idx == 3 {
-				break // Volver al menu anterior (repetir menú de entorno)
+				break
 			}
 
 			cfg, err := handler.LoadConfig(env)
 			if err != nil {
 				fmt.Println("Error al cargar configuración:", err)
+				fmt.Print("Presione Enter para continuar...")
+				var discard string
+				fmt.Scanln(&discard)
 				os.Exit(1)
 			}
 
@@ -79,13 +106,11 @@ func main() {
 				os.Exit(1)
 			}
 			if len(selectedRows) == 0 {
-				// Sin selección = volver al menú de opciones
 				continue
 			}
 
 			switch idx {
 
-			// Activar/Desactivar MS
 			case 0:
 				primeraVez := true
 				var rowsActivar []table.Row
@@ -101,7 +126,7 @@ func main() {
 							os.Exit(1)
 						}
 						if len(rowsActivar) == 0 {
-							break // volver al menú de opciones
+							break
 						}
 					}
 					var editItems []handler.EditActivarItem
@@ -139,7 +164,7 @@ func main() {
 								IP:       it.IP,
 							}
 						}
-						entry.ActivarMS = activarTodos
+						entry.Envio.Activar = activarTodos
 						cfg[it.Code] = entry
 					}
 					break
@@ -217,6 +242,18 @@ func main() {
 			default:
 				return
 			}
+
+			// Health check al final de la opción elegida (después de contraseña y cambios en cfg)
+			health := api.RunHealthCheck(cfg)
+			fmt.Println("\n--- Health check ---")
+			fmt.Println("Status:", health.Status)
+			for nombre, estado := range health.Checks {
+				fmt.Printf("  %s: %s\n", nombre, estado)
+			}
+			fmt.Println("--------------------")
+			fmt.Print("Presione Enter para continuar...")
+			var enter string
+			fmt.Scanln(&enter)
 
 			if err := handler.SaveConfig(env, cfg); err != nil {
 				fmt.Println("Error al guardar configuración:", err)
