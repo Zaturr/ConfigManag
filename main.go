@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"v2/internal/api"
 	"v2/internal/handler"
 	"v2/internal/server"
@@ -43,6 +44,9 @@ func main() {
 		"Activar/Desactivar MS en bancos",
 		"Cambiar configuracion del endpoint",
 		"Cambiar configuracion de la ip",
+		"Cambiar configuracion del tiempo de espera entre bucles",
+		"Cambiar configuracion del numero de solicitudes por bucle",
+		"Cambiar configuracion del numero maximo de solicitudes por operacion",
 		"Volver al menu anterior",
 	}
 
@@ -86,9 +90,7 @@ func main() {
 			if idx < 0 {
 				return
 			}
-			if idx == 3 {
-				break
-			}
+			// Ya no se hace break en idx == 3; se maneja en el switch
 
 			cfg, err := handler.LoadConfig(env)
 			if err != nil {
@@ -99,7 +101,7 @@ func main() {
 				os.Exit(1)
 			}
 
-			// Casos 1 y 2: un solo banco caso 0: varios
+			// Casos 1 y 2: un solo banco; caso 0 y 3: varios
 			singleSelect := idx == 1 || idx == 2
 			selectedRows, err := runBankTable(cfg, singleSelect)
 			if err != nil {
@@ -142,21 +144,22 @@ func main() {
 							Code: code, Name: name, IP: ip,
 						})
 					}
+
 					editModel := handler.NewEditActivarModel(editItems)
 					editFinal, err := tea.NewProgram(editModel).Run()
 					if err != nil {
 						fmt.Println("Error en pantalla de edición:", err)
 						os.Exit(1)
 					}
+					_, err = handler.GetPassword()
+					fmt.Println("Contraseña correcta")
+
 					editModel = editFinal.(handler.EditActivarModel)
 					var cancelled bool
 					activarTodos, cancelled = editModel.GetActivarTodos()
 					if cancelled {
 						continue
 					}
-
-					_, err = handler.GetPassword()
-					fmt.Println("Contraseña correcta")
 
 					for _, it := range editItems {
 						entry, exists := cfg[it.Code]
@@ -266,6 +269,199 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
+
+			case 3:
+				var valorTiempoBucle int
+				for {
+					TiempoBucle := handler.NewEditTiempoBucle("10")
+					TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
+					if err != nil {
+						fmt.Println("Error:", err)
+						os.Exit(1)
+					}
+					TiempoBucleModel := TiempoBucleFinal.(handler.EditTiempoBucle)
+					newTiempoBucle, cancelled := TiempoBucleModel.GetTiempoBucle()
+					if cancelled || newTiempoBucle == "" {
+						fmt.Println("Cancelado. La configuración no se modifica.")
+						continue
+					}
+					valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
+					if err != nil {
+						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
+						fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					break
+				}
+
+				_, err = handler.GetPassword()
+				if err != nil {
+					fmt.Println("Error:", err)
+					os.Exit(1)
+				}
+				fmt.Println("Contraseña correcta")
+
+				for _, row := range selectedRows {
+					if len(row) < 1 {
+						continue
+					}
+					code := row[0]
+					entry, exists := cfg[code]
+					if !exists {
+						entry = handler.Bancos{}
+						if len(row) >= 3 {
+							entry.Nombre, entry.IP = row[1], row[2]
+						}
+					}
+					entry.Envio.TiempoDeEsperaEntreBucles = valorTiempoBucle
+					cfg[code] = entry
+				}
+				accionNombre = "cambiar_tiempo_espera_entre_bucles"
+				bancosTiempo := make([]string, 0, len(selectedRows))
+				for _, row := range selectedRows {
+					if len(row) >= 1 {
+						bancosTiempo = append(bancosTiempo, row[0])
+					}
+				}
+				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "TiempoDeEsperaEntreBucles": valorTiempoBucle}
+
+			case 4:
+				var valorNumeroSolBucle int
+				for {
+					NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
+					NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
+					if err != nil {
+						fmt.Println("Error:", err)
+						os.Exit(1)
+					}
+					NumeroSolBucleModel := NumeroSolBucleFinal.(handler.EditNumeroSolBucle)
+					newNumeroSolBucle, cancelled := NumeroSolBucleModel.GetNumeroSolBucle()
+					if cancelled || newNumeroSolBucle == "" {
+						fmt.Println("Cancelado. La configuración no se modifica.")
+						continue
+					}
+					valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
+					if err != nil {
+						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
+						fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					break
+				}
+
+				_, err = handler.GetPassword()
+				if err != nil {
+					fmt.Println("Error:", err)
+					os.Exit(1)
+				}
+				fmt.Println("Contraseña correcta")
+
+				for _, row := range selectedRows {
+					if len(row) < 1 {
+						continue
+					}
+					code := row[0]
+					entry, exists := cfg[code]
+					if !exists {
+						entry = handler.Bancos{}
+						if len(row) >= 3 {
+							entry.Nombre, entry.IP = row[1], row[2]
+						}
+					}
+					entry.Envio.NumeroDeSolicitudesPorBucle = valorNumeroSolBucle
+					cfg[code] = entry
+				}
+				accionNombre = "cambiar_tiempo_espera_entre_bucles"
+				bancosTiempo := make([]string, 0, len(selectedRows))
+				for _, row := range selectedRows {
+					if len(row) >= 1 {
+						bancosTiempo = append(bancosTiempo, row[0])
+					}
+				}
+				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroDeSolicitudesPorBucle": valorNumeroSolBucle}
+
+			case 5:
+				var valorNumeroMaxPorOperacion int
+				for {
+					NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
+					NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
+					if err != nil {
+						fmt.Println("Error:", err)
+						os.Exit(1)
+					}
+					NumeroMaxPorOperacionModel := NumeroMaxPorOperacionFinal.(handler.EditNumMaxPorBucle)
+					newNumeroMaxPorOperacion, cancelled := NumeroMaxPorOperacionModel.GetNumMaxPorBucle()
+					if cancelled || newNumeroMaxPorOperacion == "" {
+						fmt.Println("Cancelado. La configuración no se modifica.")
+						continue
+					}
+					valorNumeroMaxPorOperacion, err = strconv.Atoi(newNumeroMaxPorOperacion)
+					if err != nil {
+						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 5 {
+						fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
+						fmt.Print("Presione Enter para continuar...")
+						var discard string
+						fmt.Scanln(&discard)
+						continue
+					}
+					break
+				}
+
+				_, err = handler.GetPassword()
+				if err != nil {
+					fmt.Println("Error:", err)
+					os.Exit(1)
+				}
+				fmt.Println("Contraseña correcta")
+
+				for _, row := range selectedRows {
+					if len(row) < 1 {
+						continue
+					}
+					code := row[0]
+					entry, exists := cfg[code]
+					if !exists {
+						entry = handler.Bancos{}
+						if len(row) >= 3 {
+							entry.Nombre, entry.IP = row[1], row[2]
+						}
+					}
+					entry.Envio.NumeroMaximoDeSolicitudesPorOperacion = valorNumeroMaxPorOperacion
+					cfg[code] = entry
+				}
+				accionNombre = "cambiar_tiempo_espera_entre_bucles"
+				bancosTiempo := make([]string, 0, len(selectedRows))
+				for _, row := range selectedRows {
+					if len(row) >= 1 {
+						bancosTiempo = append(bancosTiempo, row[0])
+					}
+				}
+				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroMaximoDeSolicitudesPorOperacion": valorNumeroMaxPorOperacion}
+
 			default:
 				return
 			}

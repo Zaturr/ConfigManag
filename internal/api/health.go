@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HealthResponse es la respuesta JSON del endpoint de health.
 type HealthResponse struct {
 	Status string            `json:"status"`
 	Checks map[string]string `json:"checks"`
@@ -40,8 +39,6 @@ func RunHealthCheck(cfg handler.Config) HealthResponse {
 	return resp
 }
 
-// CheckHealth devuelve un handler Gin que comprueba conectividad TCP a los bancos de cfg.
-// cfg es el mapa código -> banco (p. ej. config de Desarrollo o Producción).
 func CheckHealth(cfg handler.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		resp := RunHealthCheck(cfg)
