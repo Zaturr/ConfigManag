@@ -17,16 +17,6 @@ import (
 
 func main() {
 
-	if err := handler.Logs(); err != nil {
-		fmt.Println("Logs:", err)
-		os.Exit(1)
-	}
-	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
-	_, err := handler.GetPassword()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
 	fmt.Println("Contraseña correcta")
 
 	cfg, _ := handler.LoadConfig(handler.EnvDesarrollo)
@@ -38,7 +28,18 @@ func main() {
 	}()
 	fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
+	if err := handler.Logs(); err != nil {
+		fmt.Println("Logs:", err)
+		os.Exit(1)
+	}
+	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
+	_, err := handler.GetPassword()
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
 	opcionesMenu := []string{
+
 		"Activar/Desactivar MS en bancos",
 		"Cambiar configuracion del endpoint",
 		"Cambiar configuracion de la ip",
@@ -109,6 +110,8 @@ func main() {
 				continue
 			}
 
+			var accionNombre string
+			var accionDetalles map[string]interface{}
 			switch idx {
 
 			case 0:
@@ -167,6 +170,14 @@ func main() {
 						entry.Envio.Activar = activarTodos
 						cfg[it.Code] = entry
 					}
+					accionNombre = "activar_desactivar_ms"
+					bancosActivar := make([]string, 0, len(rowsActivar))
+					for _, r := range rowsActivar {
+						if len(r) >= 1 {
+							bancosActivar = append(bancosActivar, r[0])
+						}
+					}
+					accionDetalles = map[string]interface{}{"bancos": bancosActivar, "activar": activarTodos}
 					break
 				}
 				if len(rowsActivar) == 0 {
@@ -205,6 +216,14 @@ func main() {
 					entry.Endpoint = newEndpoint
 					cfg[code] = entry
 				}
+				accionNombre = "cambiar_endpoint"
+				bancosEp := make([]string, 0, len(selectedRows))
+				for _, row := range selectedRows {
+					if len(row) >= 1 {
+						bancosEp = append(bancosEp, row[0])
+					}
+				}
+				accionDetalles = map[string]interface{}{"bancos": bancosEp, "endpoint": newEndpoint}
 
 			// Cambiar IP
 			case 2:
@@ -239,6 +258,14 @@ func main() {
 					entry.IP = newIP
 					cfg[code] = entry
 				}
+				accionNombre = "cambiar_ip"
+				bancosIP := make([]string, 0, len(selectedRows))
+				for _, row := range selectedRows {
+					if len(row) >= 1 {
+						bancosIP = append(bancosIP, row[0])
+					}
+				}
+				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
 			default:
 				return
 			}
@@ -262,6 +289,8 @@ func main() {
 
 			configPath, _ := handler.GetConfigPath(env)
 			fmt.Println("\n\nConfiguración guardada en:", configPath)
+
+			handler.LogAccion(accionNombre, env, accionDetalles)
 
 			loading := src.NewLoadingModel("Cargando Configuracion...")
 			if _, err := tea.NewProgram(loading).Run(); err != nil {

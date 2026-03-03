@@ -40,6 +40,29 @@ func GetConfigPath(env string) (string, error) {
 	return configPath, nil
 }
 
+func GetLogsBasePath(env string) string {
+	if env == "" {
+		env = EnvProduccion
+	}
+	var dir string
+	switch env {
+	case EnvDesarrollo:
+		dir = PathDesarrollo
+	case EnvProduccion:
+		dir = PathProduccion
+	default:
+		dir = PathProduccion
+	}
+	if env == EnvProduccion {
+		if override := os.Getenv("LOG_PATH_PROD"); override != "" {
+			dir = override
+		}
+	} else if override := os.Getenv("LOG_PATH_CERT"); override != "" {
+		dir = override
+	}
+	return filepath.Clean(dir)
+}
+
 func ConfigExists(configPath string) bool {
 	_, err := os.Stat(configPath)
 	return err == nil
