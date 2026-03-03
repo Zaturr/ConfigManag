@@ -122,3 +122,30 @@ func (m TableModel) View() string {
 	}
 	return tableStyle.Render(m.Table.View()) + "\n" + help
 }
+
+func NewTableViewModel(t table.Model) TableViewModel {
+	return TableViewModel{Table: t}
+}
+
+type TableViewModel struct {
+	Table table.Model
+}
+
+func (m TableViewModel) Init() tea.Cmd { return nil }
+
+func (m TableViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "enter", "q", "k", " ":
+			return m, tea.Quit
+		}
+	}
+	var cmd tea.Cmd
+	m.Table, cmd = m.Table.Update(msg)
+	return m, cmd
+}
+
+func (m TableViewModel) View() string {
+	return tableStyle.Render(m.Table.View()) + "\nEnter = continuar"
+}

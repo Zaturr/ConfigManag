@@ -77,7 +77,7 @@ func main() {
 		if !handler.ConfigExists(configPath) {
 			fmt.Printf("No se encontró el archivo de configuración en la ruta %s. Verifique que se haya creado correctamente en esa ruta.\n", configPath)
 		}
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		for {
 			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)
 			menuFinal, err := tea.NewProgram(menuModel).Run()
@@ -90,7 +90,6 @@ func main() {
 			if idx < 0 {
 				return
 			}
-			// Ya no se hace break en idx == 3; se maneja en el switch
 
 			cfg, err := handler.LoadConfig(env)
 			if err != nil {
@@ -269,7 +268,7 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
-
+			// Cambiar tiempo de espera entre bucles
 			case 3:
 				var valorTiempoBucle int
 				for {
@@ -334,6 +333,7 @@ func main() {
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "TiempoDeEsperaEntreBucles": valorTiempoBucle}
 
+			// Cambiar numero de solicitudes por bucle
 			case 4:
 				var valorNumeroSolBucle int
 				for {
@@ -398,6 +398,7 @@ func main() {
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroDeSolicitudesPorBucle": valorNumeroSolBucle}
 
+			// Cambiar numero maximo de solicitudes por operacion
 			case 5:
 				var valorNumeroMaxPorOperacion int
 				for {
@@ -468,12 +469,7 @@ func main() {
 
 			// Health check al final de la opción elegida (después de contraseña y cambios en cfg)
 			health := api.RunHealthCheck(cfg)
-			fmt.Println("\n--- Health check ---")
-			fmt.Println("Status:", health.Status)
-			for nombre, estado := range health.Checks {
-				fmt.Printf("  %s: %s\n", nombre, estado)
-			}
-			fmt.Println("--------------------")
+			tablaHealthCheck(health)
 			fmt.Print("Presione Enter para continuar...")
 			var enter string
 			fmt.Scanln(&enter)
@@ -552,4 +548,44 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 		return nil, fmt.Errorf("no se pudo obtener el modelo de la tabla")
 	}
 	return tbl.SelectedRows(), nil
+}
+
+// tabla health check
+
+func tablaHealthCheck(health api.HealthResponse) {
+	columns := []table.Column{
+		{Title: "Banco", Width: 40},
+		{Title: "Estado", Width: 30},
+	}
+	names := make([]string, 0, len(health.Checks))
+	for n := range health.Checks {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	rows := make([]table.Row, 0, len(names)+1)
+	rows = append(rows, table.Row{"Status general", health.Status})
+	for _, n := range names {
+		rows = append(rows, table.Row{n, health.Checks[n]})
+	}
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(min(12, len(rows)+1)),
+	)
+	s := table.DefaultStyles()
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("20")).
+		Bold(false)
+	t.SetStyles(s)
+	m := src.NewTableViewModel(t)
+	if _, err := tea.NewProgram(m).Run(); err != nil {
+		fmt.Println("Error al mostrar health check:", err)
+	}
 }
