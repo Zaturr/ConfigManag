@@ -1,0 +1,85 @@
+package api
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+
+	"v2/internal/handler"
+
+	"github.com/SOLUCIONESSYCOM/scribe"
+	"github.com/gin-gonic/gin"
+)
+
+func SolestConfig(cfg handler.Config) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		nombreBanco := ctx.Query("banco")
+		if nombreBanco == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "falta query: ?banco=NombreDelBanco"})
+			return
+		}
+
+		// Si viene env, usar config recién guardada en disco (p. ej. llamada desde main)
+		cfgUsar := cfg
+		if envParam := ctx.Query("env"); envParam != "" {
+			carga, err := handler.LoadConfig(envParam)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error cargando config: " + err.Error()})
+				return
+			}
+			cfgUsar = carga
+		}
+
+		banco, ok := cfgUsar[nombreBanco]
+		if !ok {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "banco no encontrado: " + nombreBanco})
+			return
+		}
+
+		// IP del config del banco, puerto 8082, ruta del API del banco
+		urlBanco := fmt.Sprintf("http://%s:8082/simf/api/v1/config/solest", banco.IP)
+
+		BodyEnvio, err := json.Marshal(banco.Envio)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error armando JSON de envio: " + err.Error()})
+			return
+
+		}
+
+		// Log del body del POST para verificar envío
+		scribe.Info().
+			Str("banco", nombreBanco).
+			Str("url", urlBanco).
+			Str("body", string(BodyEnvio)).
+			Msg("POST solest config: body enviado al banco")
+
+		// En consola para verificar: URL y body que se envían al banco
+		fmt.Printf("[solest] POST al banco → URL: %s\n", urlBanco)
+		fmt.Printf("[solest] Body enviado: %s\n", string(BodyEnvio))
+
+		req, err := http.NewRequest(http.MethodPost, urlBanco, bytes.NewReader(BodyEnvio))
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creando request: " + err.Error()})
+			return
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			ctx.JSON(http.StatusBadGateway, gin.H{"error": "error llamando al banco: " + err.Error()})
+			return
+		}
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error leyendo respuesta del banco"})
+			return
+		}
+
+		ctx.Data(resp.StatusCode, "application/json", respBody)
+	}
+}

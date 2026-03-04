@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"sort"
 	"strconv"
@@ -467,17 +468,42 @@ func main() {
 				return
 			}
 
-			// Health check al final de la opción elegida (después de contraseña y cambios en cfg)
-			health := api.RunHealthCheck(cfg)
-			tablaHealthCheck(health)
-			fmt.Print("Presione Enter para continuar...")
-			var enter string
-			fmt.Scanln(&enter)
-
+			// Guardar configuración primero
 			if err := handler.SaveConfig(env, cfg); err != nil {
 				fmt.Println("Error al guardar configuración:", err)
 				os.Exit(1)
 			}
+
+			// Enviar actualización solest a cada banco modificado (antes del health check)
+			SolestStatus := make(map[string]int)
+			if bancos, ok := accionDetalles["bancos"].([]string); ok {
+				for _, codigoBanco := range bancos {
+					url := "http://localhost:8080/simf/api/v1/config/solest?banco=" + codigoBanco + "&env=" + env
+					resp, err := http.Post(url, "application/json", nil)
+					if err != nil {
+						fmt.Println("Error enviando config al banco", codigoBanco, ":", err)
+						if b, ok := cfg[codigoBanco]; ok {
+							SolestStatus[b.Nombre] = 0
+						}
+						continue
+					}
+					status := resp.StatusCode
+					resp.Body.Close()
+					if b, ok := cfg[codigoBanco]; ok {
+						SolestStatus[b.Nombre] = status
+					}
+					if resp.StatusCode >= 400 {
+						fmt.Println("Banco", codigoBanco, "respondió con status:", resp.StatusCode)
+					}
+				}
+			}
+
+			// Health check al final de la opción elegida (después de guardar y enviar a bancos)
+			health := api.RunHealthCheck(cfg)
+			tablaHealthCheck(health, SolestStatus)
+			fmt.Print("Presione Enter para continuar...")
+			var enter string
+			fmt.Scanln(&enter)
 
 			configPath, _ := handler.GetConfigPath(env)
 			fmt.Println("\n\nConfiguración guardada en:", configPath)
@@ -552,10 +578,11 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 
 // tabla health check
 
-func tablaHealthCheck(health api.HealthResponse) {
+func tablaHealthCheck(health api.HealthResponse, SolestStatus map[string]int) {
 	columns := []table.Column{
 		{Title: "Banco", Width: 40},
 		{Title: "Estado", Width: 30},
+		{Title: "Status http", Width: 30},
 	}
 	names := make([]string, 0, len(health.Checks))
 	for n := range health.Checks {
@@ -563,9 +590,13 @@ func tablaHealthCheck(health api.HealthResponse) {
 	}
 	sort.Strings(names)
 	rows := make([]table.Row, 0, len(names)+1)
-	rows = append(rows, table.Row{"Status general", health.Status})
+	rows = append(rows, table.Row{"Status general", health.Status, "-"})
 	for _, n := range names {
-		rows = append(rows, table.Row{n, health.Checks[n]})
+		statusStr := "-"
+		if code, ok := SolestStatus[n]; ok {
+			statusStr = strconv.Itoa(code)
+		}
+		rows = append(rows, table.Row{n, health.Checks[n], statusStr})
 	}
 	t := table.New(
 		table.WithColumns(columns),

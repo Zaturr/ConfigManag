@@ -27,4 +27,5 @@ func (s *Server) Run() error {
 
 func registerRoutes(r *gin.Engine, cfg handler.Config) {
 	r.GET("/api/v1/health", api.CheckHealth(cfg))
+	r.POST("/simf/api/v1/config/solest", api.SolestConfig(cfg))
 }
