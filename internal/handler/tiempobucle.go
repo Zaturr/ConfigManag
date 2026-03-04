@@ -33,7 +33,7 @@ func (m EditTiempoBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			m.Cancelled = true
 			return m, tea.Quit
-		case "enter":
+		case "enter", " ":
 			m.Cancelled = false
 			return m, tea.Quit
 		}
@@ -44,5 +44,5 @@ func (m EditTiempoBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditTiempoBucle) View() string {
-	return "Nuevo tiempo de espera entre bucles(Maximo 10): " + m.Input.View() + "\nEnter = guardar   q = cancelar"
+	return "Nuevo tiempo de espera entre bucles(Maximo 10): " + m.Input.View() + "\nEnter o Espacio = guardar   q = volver"
 }

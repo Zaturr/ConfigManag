@@ -41,7 +41,7 @@ func (m EditActivarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			m.Cancelled = true
 			return m, tea.Quit
-		case "k", "enter":
+		case "k", "enter", " ":
 			m.Cancelled = false
 			return m, tea.Quit
 		case "left", "h":
@@ -51,6 +51,7 @@ func (m EditActivarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Cursor = OpcionNo
 			return m, nil
 		}
+		return m, nil
 	}
 	return m, nil
 }
@@ -76,7 +77,7 @@ func (m EditActivarModel) View() string {
 	}
 
 	title += "\n  " + si + "    " + no + "\n\n"
-	title += editHelpStyle.Render("  ←/→ o h/l = elegir   K o Enter = confirmar   q = volver")
+	title += editHelpStyle.Render("  ←/→ o h/l = elegir   K o Enter o Espacio = confirmar   q = volver")
 
 	return editStyle.Render(title)
 }

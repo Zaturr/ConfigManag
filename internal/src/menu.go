@@ -45,13 +45,16 @@ func (m MenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.Cursor > 0 {
 				m.Cursor--
 			}
+			return m, nil
 		case "down", "j":
 			if m.Cursor < len(m.Opciones)-1 {
 				m.Cursor++
 			}
-		case "enter":
+			return m, nil
+		case "enter", " ":
 			return m, tea.Quit
 		}
+		return m, nil
 	}
 	return m, nil
 }
@@ -70,6 +73,6 @@ func (m MenuModel) View() string {
 		}
 		b.WriteString(fmt.Sprintf("%s%s\n", cursor, op))
 	}
-	b.WriteString("\nEnter = elegir   q = salir")
+	b.WriteString("\nK/j = subir/bajar   Enter o Espacio = elegir   q = volver")
 	return b.String()
 }

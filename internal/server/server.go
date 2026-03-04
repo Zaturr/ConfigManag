@@ -1,6 +1,9 @@
 package server
 
 import (
+	"net"
+	"net/http"
+	"time"
 	"v2/internal/api"
 	"v2/internal/handler"
 
@@ -22,7 +25,17 @@ func NewServer(port string, cfg handler.Config) *Server {
 }
 
 func (s *Server) Run() error {
-	return s.Engine.Run(s.Port)
+	listener, err := net.Listen("tcp", s.Port)
+	if err != nil {
+		return err
+	}
+	srv := &http.Server{
+		Handler:      s.Engine,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  10 * time.Second,
+	}
+	return srv.Serve(listener)
 }
 
 func registerRoutes(r *gin.Engine, cfg handler.Config) {

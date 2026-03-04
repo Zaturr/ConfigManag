@@ -33,7 +33,7 @@ func (m EditEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			m.Cancelled = true
 			return m, tea.Quit
-		case "enter":
+		case "enter", " ":
 			m.Cancelled = false
 			return m, tea.Quit
 		}
@@ -45,5 +45,5 @@ func (m EditEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditEndpointModel) View() string {
-	return "Nuevo endpoint: " + m.Input.View() + "\nEnter = guardar   q = cancelar"
+	return "Nuevo endpoint: " + m.Input.View() + "\nEnter o Espacio = guardar   q = volver"
 }

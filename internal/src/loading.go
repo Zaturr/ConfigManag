@@ -44,7 +44,11 @@ func (m LoadingModel) Init() tea.Cmd {
 func (m LoadingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		return m, tea.Quit
+		switch msg.String() {
+		case "q", "enter", " ":
+			return m, tea.Quit
+		}
+		return m, nil
 
 	case tea.WindowSizeMsg:
 		m.Progress.Width = msg.Width - padding*2 - 4
@@ -77,7 +81,7 @@ func (m LoadingModel) View() string {
 		out += pad + m.Description + "\n\n"
 	}
 	out += pad + m.Progress.View() + "\n\n" +
-		pad + helpStyle("Press any key to quit")
+		pad + helpStyle("Q o Enter o Espacio = continuar")
 	return out
 }
 

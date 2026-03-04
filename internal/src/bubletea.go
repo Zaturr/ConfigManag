@@ -27,7 +27,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) View() string {
 	var b strings.Builder
-	b.WriteString("Elige opciones (Enter = marcar, q = salir)\n\n")
+	b.WriteString("K/j = subir/bajar   Enter o Espacio = marcar   q = volver\n\n")
 	for i, c := range m.choices {
 		cursor := "  "
 		if i == m.cursor {
@@ -45,7 +45,6 @@ func (m Model) View() string {
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
-
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
@@ -54,20 +53,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor > 0 {
 				m.cursor--
 			}
+			return m, nil
 		case "down", "j":
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
-		case "enter", "":
+			return m, nil
+		case "enter", " ":
 			_, ok := m.selected[m.cursor]
 			if ok {
 				delete(m.selected, m.cursor)
 			} else {
 				m.selected[m.cursor] = struct{}{}
 			}
+			return m, nil
 		}
-
+		return m, nil
 	}
-
 	return m, nil
 }

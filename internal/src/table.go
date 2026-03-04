@@ -70,36 +70,24 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "esc":
-			if m.Table.Focused() {
-				m.Table.Blur()
-			} else {
-				m.Table.Focus()
-			}
+		key := msg.String()
+		switch key {
 		case "q", "ctrl+c":
+			m.Selectmap = make(map[int]struct{})
 			return m, tea.Quit
 		case "k":
-			return m, tea.Quit
-
-		case "a":
-			if !m.SingleSelect {
-				if len(m.Selectmap) == len(m.BaseRows) {
-					m.Selectmap = make(map[int]struct{})
-				} else {
-					for i := range m.BaseRows {
-						m.Selectmap[i] = struct{}{}
-					}
-				}
+			if m.SingleSelect {
+				idx := m.Table.Cursor()
+				m.Selectmap = map[int]struct{}{idx: {}}
 				(&m.Table).SetRows(m.ApplySelectionMarkers())
-				return m, nil
 			}
+			return m, tea.Quit
 		case " ", "enter":
 			idx := m.Table.Cursor()
 			if m.SingleSelect {
 				m.Selectmap = map[int]struct{}{idx: {}}
 				(&m.Table).SetRows(m.ApplySelectionMarkers())
-				return m, tea.Quit
+				return m, nil
 			}
 			if _, ok := m.Selectmap[idx]; ok {
 				delete(m.Selectmap, idx)
@@ -108,17 +96,20 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			(&m.Table).SetRows(m.ApplySelectionMarkers())
 			return m, nil
+		case "up", "down", "j":
+			m.Table, cmd = m.Table.Update(msg)
+			return m, cmd
 		}
-
+		return m, nil
 	}
 	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
 }
 
 func (m TableModel) View() string {
-	help := "Espacio/Enter = marcar   A = todos   K = confirmar   Q = volver"
+	help := "K = confirmar   Enter o Espacio = marcar   Q = volver   ↑/↓/j = mover"
 	if m.SingleSelect {
-		help = "Enter = elegir un banco   Q = volver"
+		help = "K = confirmar y avanzar (solo K)   Q = volver   ↑/↓/j = mover"
 	}
 	return tableStyle.Render(m.Table.View()) + "\n" + help
 }
@@ -137,9 +128,10 @@ func (m TableViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "enter", "q", "k", " ":
+		case "q", "ctrl+c", "k":
 			return m, tea.Quit
 		}
+		return m, nil
 	}
 	var cmd tea.Cmd
 	m.Table, cmd = m.Table.Update(msg)
@@ -147,5 +139,5 @@ func (m TableViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableViewModel) View() string {
-	return tableStyle.Render(m.Table.View()) + "\nEnter = continuar"
+	return tableStyle.Render(m.Table.View()) + "\nK = continuar   Q = volver"
 }
