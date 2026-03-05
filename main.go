@@ -48,7 +48,6 @@ func main() {
 		"Cambiar configuracion del tiempo de espera entre bucles",
 		"Cambiar configuracion del numero de solicitudes por bucle",
 		"Cambiar configuracion del numero maximo de solicitudes por operacion",
-		"Volver al menu anterior",
 	}
 
 	for {
@@ -79,7 +78,7 @@ func main() {
 			fmt.Printf("No se encontró el archivo de configuración en la ruta %s. Verifique que se haya creado correctamente en esa ruta.\n", configPath)
 		}
 
-		for {
+		for menuLoop := true; menuLoop; {
 			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)
 			menuFinal, err := tea.NewProgram(menuModel).Run()
 			if err != nil {
@@ -89,7 +88,8 @@ func main() {
 			menu := menuFinal.(src.MenuModel)
 			idx := menu.SelectedIndex()
 			if idx < 0 {
-				return
+				menuLoop = false
+				continue
 			}
 
 			cfg, err := handler.LoadConfig(env)
@@ -151,15 +151,16 @@ func main() {
 						fmt.Println("Error en pantalla de edición:", err)
 						os.Exit(1)
 					}
-					_, err = handler.GetPassword()
-					fmt.Println("Contraseña correcta")
-
 					editModel = editFinal.(handler.EditActivarModel)
 					var cancelled bool
 					activarTodos, cancelled = editModel.GetActivarTodos()
 					if cancelled {
+						// q: volver a selección de bancos, sin contraseña ni actualizar
 						continue
 					}
+
+					_, err = handler.GetPassword()
+					fmt.Println("Contraseña correcta")
 
 					for _, it := range editItems {
 						entry, exists := cfg[it.Code]
@@ -199,7 +200,7 @@ func main() {
 				newEndpoint, cancelled := epModel.GetEndpoint()
 				if cancelled || newEndpoint == "" {
 					fmt.Println("Cancelado o endpoint vacío. La configuración no se modifica.")
-					return
+					continue
 				}
 
 				_, err = handler.GetPassword()
@@ -240,7 +241,7 @@ func main() {
 				newIP, cancelled := ipModel.GetIP()
 				if cancelled || newIP == "" {
 					fmt.Println("Cancelado o IP vacío. La configuración no se modifica.")
-					return
+					continue
 				}
 
 				_, err = handler.GetPassword()
@@ -464,6 +465,11 @@ func main() {
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroMaximoDeSolicitudesPorOperacion": valorNumeroMaxPorOperacion}
 
+			case 6:
+				// Volver al menú anterior = menú de ambiente (Producción/Desarrollo)
+				menuLoop = false
+				continue
+
 			default:
 				return
 			}
@@ -517,7 +523,7 @@ func main() {
 			}
 
 			fmt.Println("Listo.")
-			return
+			continue
 		}
 	}
 }
