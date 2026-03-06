@@ -272,36 +272,61 @@ func main() {
 				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
 			// Cambiar tiempo de espera entre bucles
 			case 3:
+				primeraVezTiempo := true
+				var rowsTiempoBucle []table.Row
 				var valorTiempoBucle int
 				for {
-					TiempoBucle := handler.NewEditTiempoBucle("10")
-					TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
-					if err != nil {
-						fmt.Println("Error:", err)
-						os.Exit(1)
+					if primeraVezTiempo {
+						rowsTiempoBucle = selectedRows
+						primeraVezTiempo = false
+					} else {
+						rowsTiempoBucle, err = runBankTable(cfg, false)
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						if len(rowsTiempoBucle) == 0 {
+							break
+						}
 					}
-					TiempoBucleModel := TiempoBucleFinal.(handler.EditTiempoBucle)
-					newTiempoBucle, cancelled := TiempoBucleModel.GetTiempoBucle()
-					if cancelled || newTiempoBucle == "" {
-						fmt.Println("Cancelado. La configuración no se modifica.")
-						continue
+					valorConfirmado := false
+					for {
+						TiempoBucle := handler.NewEditTiempoBucle("10")
+						TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						TiempoBucleModel := TiempoBucleFinal.(handler.EditTiempoBucle)
+						newTiempoBucle, cancelled := TiempoBucleModel.GetTiempoBucle()
+						if cancelled || newTiempoBucle == "" {
+							break
+						}
+						valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
+						if err != nil {
+							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
+							fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						valorConfirmado = true
+						break
 					}
-					valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
-					if err != nil {
-						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
-						continue
-					}
-					if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
-						fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
+					if !valorConfirmado {
 						continue
 					}
 					break
+				}
+				if len(rowsTiempoBucle) == 0 {
+					continue
 				}
 
 				_, err = handler.GetPassword()
@@ -309,9 +334,10 @@ func main() {
 					fmt.Println("Error:", err)
 					os.Exit(1)
 				}
+
 				fmt.Println("Contraseña correcta")
 
-				for _, row := range selectedRows {
+				for _, row := range rowsTiempoBucle {
 					if len(row) < 1 {
 						continue
 					}
@@ -327,8 +353,8 @@ func main() {
 					cfg[code] = entry
 				}
 				accionNombre = "cambiar_tiempo_espera_entre_bucles"
-				bancosTiempo := make([]string, 0, len(selectedRows))
-				for _, row := range selectedRows {
+				bancosTiempo := make([]string, 0, len(rowsTiempoBucle))
+				for _, row := range rowsTiempoBucle {
 					if len(row) >= 1 {
 						bancosTiempo = append(bancosTiempo, row[0])
 					}
@@ -337,36 +363,61 @@ func main() {
 
 			// Cambiar numero de solicitudes por bucle
 			case 4:
+				primeraVezSolBucle := true
+				var rowsNumeroSolBucle []table.Row
 				var valorNumeroSolBucle int
 				for {
-					NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
-					NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
-					if err != nil {
-						fmt.Println("Error:", err)
-						os.Exit(1)
+					if primeraVezSolBucle {
+						rowsNumeroSolBucle = selectedRows
+						primeraVezSolBucle = false
+					} else {
+						rowsNumeroSolBucle, err = runBankTable(cfg, false)
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						if len(rowsNumeroSolBucle) == 0 {
+							break
+						}
 					}
-					NumeroSolBucleModel := NumeroSolBucleFinal.(handler.EditNumeroSolBucle)
-					newNumeroSolBucle, cancelled := NumeroSolBucleModel.GetNumeroSolBucle()
-					if cancelled || newNumeroSolBucle == "" {
-						fmt.Println("Cancelado. La configuración no se modifica.")
-						continue
+					valorConfirmadoSolBucle := false
+					for {
+						NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
+						NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						NumeroSolBucleModel := NumeroSolBucleFinal.(handler.EditNumeroSolBucle)
+						newNumeroSolBucle, cancelled := NumeroSolBucleModel.GetNumeroSolBucle()
+						if cancelled || newNumeroSolBucle == "" {
+							break
+						}
+						valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
+						if err != nil {
+							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
+							fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						valorConfirmadoSolBucle = true
+						break
 					}
-					valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
-					if err != nil {
-						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
-						continue
-					}
-					if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
-						fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
+					if !valorConfirmadoSolBucle {
 						continue
 					}
 					break
+				}
+				if len(rowsNumeroSolBucle) == 0 {
+					continue
 				}
 
 				_, err = handler.GetPassword()
@@ -376,7 +427,7 @@ func main() {
 				}
 				fmt.Println("Contraseña correcta")
 
-				for _, row := range selectedRows {
+				for _, row := range rowsNumeroSolBucle {
 					if len(row) < 1 {
 						continue
 					}
@@ -392,8 +443,8 @@ func main() {
 					cfg[code] = entry
 				}
 				accionNombre = "cambiar_tiempo_espera_entre_bucles"
-				bancosTiempo := make([]string, 0, len(selectedRows))
-				for _, row := range selectedRows {
+				bancosTiempo := make([]string, 0, len(rowsNumeroSolBucle))
+				for _, row := range rowsNumeroSolBucle {
 					if len(row) >= 1 {
 						bancosTiempo = append(bancosTiempo, row[0])
 					}
@@ -402,36 +453,61 @@ func main() {
 
 			// Cambiar numero maximo de solicitudes por operacion
 			case 5:
+				primeraVezMaxOp := true
+				var rowsNumeroMaxOp []table.Row
 				var valorNumeroMaxPorOperacion int
 				for {
-					NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
-					NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
-					if err != nil {
-						fmt.Println("Error:", err)
-						os.Exit(1)
+					if primeraVezMaxOp {
+						rowsNumeroMaxOp = selectedRows
+						primeraVezMaxOp = false
+					} else {
+						rowsNumeroMaxOp, err = runBankTable(cfg, false)
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						if len(rowsNumeroMaxOp) == 0 {
+							break
+						}
 					}
-					NumeroMaxPorOperacionModel := NumeroMaxPorOperacionFinal.(handler.EditNumMaxPorBucle)
-					newNumeroMaxPorOperacion, cancelled := NumeroMaxPorOperacionModel.GetNumMaxPorBucle()
-					if cancelled || newNumeroMaxPorOperacion == "" {
-						fmt.Println("Cancelado. La configuración no se modifica.")
-						continue
+					valorConfirmadoMaxOp := false
+					for {
+						NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
+						NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
+						if err != nil {
+							fmt.Println("Error:", err)
+							os.Exit(1)
+						}
+						NumeroMaxPorOperacionModel := NumeroMaxPorOperacionFinal.(handler.EditNumMaxPorBucle)
+						newNumeroMaxPorOperacion, cancelled := NumeroMaxPorOperacionModel.GetNumMaxPorBucle()
+						if cancelled || newNumeroMaxPorOperacion == "" {
+							break
+						}
+						valorNumeroMaxPorOperacion, err = strconv.Atoi(newNumeroMaxPorOperacion)
+						if err != nil {
+							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 5 {
+							fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
+							fmt.Print("Presione Enter para continuar...")
+							var discard string
+							fmt.Scanln(&discard)
+							continue
+						}
+						valorConfirmadoMaxOp = true
+						break
 					}
-					valorNumeroMaxPorOperacion, err = strconv.Atoi(newNumeroMaxPorOperacion)
-					if err != nil {
-						fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
-						continue
-					}
-					if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 5 {
-						fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
-						fmt.Print("Presione Enter para continuar...")
-						var discard string
-						fmt.Scanln(&discard)
+					if !valorConfirmadoMaxOp {
 						continue
 					}
 					break
+				}
+				if len(rowsNumeroMaxOp) == 0 {
+					continue
 				}
 
 				_, err = handler.GetPassword()
@@ -441,7 +517,7 @@ func main() {
 				}
 				fmt.Println("Contraseña correcta")
 
-				for _, row := range selectedRows {
+				for _, row := range rowsNumeroMaxOp {
 					if len(row) < 1 {
 						continue
 					}
@@ -457,8 +533,8 @@ func main() {
 					cfg[code] = entry
 				}
 				accionNombre = "cambiar_tiempo_espera_entre_bucles"
-				bancosTiempo := make([]string, 0, len(selectedRows))
-				for _, row := range selectedRows {
+				bancosTiempo := make([]string, 0, len(rowsNumeroMaxOp))
+				for _, row := range rowsNumeroMaxOp {
 					if len(row) >= 1 {
 						bancosTiempo = append(bancosTiempo, row[0])
 					}
