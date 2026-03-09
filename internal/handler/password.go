@@ -75,6 +75,7 @@ func GetPassword() (string, error) {
 		return "", err
 	}
 
+	ResetInactivity()
 	return password, nil
 }
 

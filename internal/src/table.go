@@ -1,6 +1,8 @@
 package src
 
 import (
+	"v2/internal/handler"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -67,6 +69,7 @@ func (m TableModel) Init() tea.Cmd {
 }
 
 func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	handler.ResetInactivity()
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -134,6 +137,7 @@ type TableViewModel struct {
 func (m TableViewModel) Init() tea.Cmd { return nil }
 
 func (m TableViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	handler.ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

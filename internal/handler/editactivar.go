@@ -35,6 +35,7 @@ func (m EditActivarModel) Init() tea.Cmd {
 }
 
 func (m EditActivarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

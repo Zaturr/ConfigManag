@@ -27,6 +27,7 @@ func (m EditNumeroSolBucle) GetNumeroSolBucle() (string, bool) {
 }
 
 func (m EditNumeroSolBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

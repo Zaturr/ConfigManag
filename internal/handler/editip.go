@@ -27,6 +27,7 @@ func (m EditIPModel) GetIP() (string, bool) {
 }
 
 func (m EditIPModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

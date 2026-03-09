@@ -4,6 +4,8 @@ import (
 	"strings"
 	"time"
 
+	"v2/internal/handler"
+
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -42,6 +44,7 @@ func (m LoadingModel) Init() tea.Cmd {
 }
 
 func (m LoadingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	handler.ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		return m, tea.Quit

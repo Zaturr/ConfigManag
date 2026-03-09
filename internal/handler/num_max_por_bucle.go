@@ -27,6 +27,7 @@ func (m EditNumMaxPorBucle) GetNumMaxPorBucle() (string, bool) {
 }
 
 func (m EditNumMaxPorBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

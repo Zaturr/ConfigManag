@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"v2/internal/handler"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -43,7 +45,7 @@ func (m Model) View() string {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
+	handler.ResetInactivity()
 	switch msg := msg.(type) {
 
 	case tea.KeyMsg:

@@ -27,6 +27,7 @@ func (m EditEndpointModel) GetEndpoint() (string, bool) {
 }
 
 func (m EditEndpointModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	ResetInactivity()
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {

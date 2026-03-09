@@ -35,6 +35,7 @@ func main() {
 		os.Exit(1)
 	}
 	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
+	handler.StartInactivityTimer(handler.DefaultInactivityMinutes)
 	_, err := handler.GetPassword()
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -48,6 +49,7 @@ func main() {
 		"Cambiar configuracion del tiempo de espera entre bucles",
 		"Cambiar configuracion del numero de solicitudes por bucle",
 		"Cambiar configuracion del numero maximo de solicitudes por operacion",
+		"Finalizar sesión y cerrar aplicación",
 	}
 
 	for {
@@ -57,6 +59,7 @@ func main() {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
+		handler.ResetInactivity()
 		envMenu := envFinal.(src.MenuModel)
 		envIdx := envMenu.SelectedIndex()
 		if envIdx < 0 {
@@ -85,11 +88,15 @@ func main() {
 				fmt.Println("Error:", err)
 				os.Exit(1)
 			}
+			handler.ResetInactivity()
 			menu := menuFinal.(src.MenuModel)
 			idx := menu.SelectedIndex()
 			if idx < 0 {
 				menuLoop = false
 				continue
+			}
+			if idx == 6 {
+				return
 			}
 
 			cfg, err := handler.LoadConfig(env)
@@ -158,6 +165,7 @@ func main() {
 						fmt.Println("Error en pantalla de edición:", err)
 						os.Exit(1)
 					}
+					handler.ResetInactivity()
 					editModel = editFinal.(handler.EditActivarModel)
 					var cancelled bool
 					activarTodos, cancelled = editModel.GetActivarTodos()
@@ -396,6 +404,7 @@ func main() {
 					fmt.Println("Error:", err)
 					os.Exit(1)
 				}
+				handler.ResetInactivity()
 				epModel := epFinal.(handler.EditEndpointModel)
 				newEndpoint, cancelled := epModel.GetEndpoint()
 				if cancelled || newEndpoint == "" {
@@ -437,6 +446,7 @@ func main() {
 					fmt.Println("Error:", err)
 					os.Exit(1)
 				}
+				handler.ResetInactivity()
 				ipModel := IPFinal.(handler.EditIPModel)
 				newIP, cancelled := ipModel.GetIP()
 				if cancelled || newIP == "" {
@@ -852,6 +862,7 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 	if err != nil {
 		return nil, err
 	}
+	handler.ResetInactivity()
 	tbl, ok := finalModel.(src.TableModel)
 	if !ok {
 		return nil, fmt.Errorf("no se pudo obtener el modelo de la tabla")
