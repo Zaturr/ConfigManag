@@ -45,5 +45,5 @@ func (m EditNumMaxPorBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditNumMaxPorBucle) View() string {
-	return "Nuevo numero maximo de solicitudes por bucle(Maximo 5): " + m.Input.View() + "\nEnter = guardar   q = cancelar"
+	return "Nuevo numero maximo de solicitudes por bucle(Maximo 5)" + m.Input.View() + "\nEnter = guardar   q = cancelar"
 }

@@ -45,5 +45,5 @@ func (m EditTiempoBucle) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditTiempoBucle) View() string {
-	return "Nuevo tiempo de espera entre bucles(Maximo 10): " + m.Input.View() + "\nEnter = guardar   q = cancelar"
+	return "Nuevo tiempo de espera entre bucles(Maximo 10)" + m.Input.View() + "\nEnter = guardar   q = cancelar"
 }

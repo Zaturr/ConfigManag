@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"sort"
@@ -16,29 +17,34 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
 	fmt.Println("Contraseña correcta")
 
+	// Suprimir logs de Gin en consola; los de scribe se mantienen
+	gin.DefaultWriter = io.Discard
+	gin.DefaultErrorWriter = io.Discard
+
 	cfg, _ := handler.LoadConfig(handler.EnvDesarrollo)
 	srv := server.NewServer(":8080", cfg)
 	go func() {
 		if err := srv.Run(); err != nil {
-			fmt.Println("Servidor API:", err)
+			//fmt.Println("Servidor API:", err)
 		}
 	}()
-	fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
+	//fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
-	if err := handler.Logs(); err != nil {
-		fmt.Println("Logs:", err)
-		os.Exit(1)
-	}
+	//if err := handler.Logs(); err != nil {
+	//	fmt.Println("Logs:", err)
+	//	os.Exit(1)
+	//}
 	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
 	handler.StartInactivityTimer(handler.DefaultInactivityMinutes)
-	fmt.Println("Configuración actual (Desarrollo):")
-	mostrarTablaConfig(cfg)
+	//fmt.Println("Configuración actual (Desarrollo):")
+
 	_, err := handler.GetPassword()
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -63,6 +69,7 @@ func main() {
 			os.Exit(1)
 		}
 		handler.ResetInactivity()
+
 		envMenu := envFinal.(src.MenuModel)
 		envIdx := envMenu.SelectedIndex()
 		if envIdx < 0 {
@@ -83,6 +90,13 @@ func main() {
 		if !handler.ConfigExists(configPath) {
 			fmt.Printf("No se encontró el archivo de configuración en la ruta %s. Verifique que se haya creado correctamente en esa ruta.\n", configPath)
 		}
+
+		cfgAmbiente, err := handler.LoadConfig(env)
+		if err != nil {
+			fmt.Println("Error al cargar configuración:", err)
+			continue
+		}
+		mostrarTablaConfig(cfgAmbiente)
 
 		for menuLoop := true; menuLoop; {
 			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)

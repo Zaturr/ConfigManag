@@ -6,12 +6,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"v2/internal/handler"
 
 	"github.com/SOLUCIONESSYCOM/scribe"
 	"github.com/gin-gonic/gin"
 )
+
+// Puerto del API del banco para solest config (se usa junto con la IP del config).
+const solestPort = "8082"
 
 func SolestConfig(cfg handler.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -38,8 +42,26 @@ func SolestConfig(cfg handler.Config) gin.HandlerFunc {
 			return
 		}
 
-		// IP del config del banco, puerto 8082, ruta del API del banco
-		urlBanco := fmt.Sprintf("http://%s:8082/simf/api/v1/config/solest", banco.IP)
+		// Config: solo IP (ej. 192.168.100.230) y endpoint como path (ej. /simf/api/v1/config/solest).
+		// Se arma la URL aquí: http:// + IP + :8082 + endpoint
+		ip := strings.TrimSpace(banco.IP)
+		endpointPath := strings.TrimSpace(banco.Endpoint)
+		if ip == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("banco %q no tiene IP configurada en el archivo de configuración", nombreBanco),
+			})
+			return
+		}
+		if endpointPath == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("banco %q no tiene endpoint configurado (path, ej. /simf/api/v1/config/solest)", nombreBanco),
+			})
+			return
+		}
+		if !strings.HasPrefix(endpointPath, "/") {
+			endpointPath = "/" + endpointPath
+		}
+		urlBanco := "http://" + ip + ":" + solestPort + endpointPath
 
 		BodyEnvio, err := json.Marshal(banco.Envio)
 		if err != nil {
