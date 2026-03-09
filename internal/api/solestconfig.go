@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"v2/internal/handler"
 
@@ -79,7 +80,7 @@ func SolestConfig(cfg handler.Config) gin.HandlerFunc {
 		}
 		req.Header.Set("Content-Type", "application/json")
 
-		client := &http.Client{}
+		client := &http.Client{Timeout: 10 * time.Second}
 		resp, err := client.Do(req)
 		if err != nil {
 			ctx.JSON(http.StatusBadGateway, gin.H{"error": "error llamando al banco: " + err.Error()})

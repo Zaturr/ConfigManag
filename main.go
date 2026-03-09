@@ -836,7 +836,8 @@ func main() {
 					go func(codigoBanco string) {
 						defer wg.Done()
 						url := "http://localhost:8080/simf/api/v1/config/solest?banco=" + codigoBanco + "&env=" + env
-						resp, err := http.Post(url, "application/json", nil)
+						client := &http.Client{Timeout: 10 * time.Second}
+						resp, err := client.Post(url, "application/json", nil)
 						if err != nil {
 							fmt.Println("Error enviando config al banco", codigoBanco, ":", err)
 							mu.Lock()
