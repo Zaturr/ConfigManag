@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"sync"
 	"v2/internal/api"
 	"v2/internal/handler"
 	"v2/internal/server"
@@ -36,6 +37,8 @@ func main() {
 	}
 	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
 	handler.StartInactivityTimer(handler.DefaultInactivityMinutes)
+	fmt.Println("Configuración actual (Desarrollo):")
+	mostrarTablaConfig(cfg)
 	_, err := handler.GetPassword()
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -124,6 +127,14 @@ func main() {
 			switch idx {
 
 			case 0:
+				// Health check ANTES de Activar/Desactivar
+				healthAntes := api.RunHealthCheck(cfg)
+				fmt.Println("Health check antes de Activar/Desactivar MS:")
+				tablaHealthCheck(healthAntes, nil)
+				fmt.Print("Presione Enter para continuar...")
+				var enterAntes string
+				fmt.Scanln(&enterAntes)
+
 				primeraVez := true
 				var rowsActivar []table.Row
 				var activarTodos bool
@@ -358,6 +369,8 @@ func main() {
 						}
 					}
 
+					fmt.Println("Configuración actual (antes de aplicar cambios):")
+					mostrarTablaConfig(cfg)
 					_, err = handler.GetPassword()
 					fmt.Println("Contraseña correcta")
 
@@ -395,10 +408,12 @@ func main() {
 				if len(rowsActivar) == 0 {
 					continue
 				}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 
 			// Cambiar endpoint
 			case 1:
-				endpointModel := handler.NewEditEndpointModel("http://192.168.1.1:8080/api")
+				endpointModel := handler.NewEditEndpointModel("/api")
 				epFinal, err := tea.NewProgram(endpointModel).Run()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -412,6 +427,8 @@ func main() {
 					continue
 				}
 
+				fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg)
 				_, err = handler.GetPassword()
 				fmt.Println("Contraseña correcta")
 				for _, row := range selectedRows {
@@ -437,6 +454,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosEp, "endpoint": newEndpoint}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 
 			// Cambiar IP
 			case 2:
@@ -454,6 +473,8 @@ func main() {
 					continue
 				}
 
+				fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg)
 				_, err = handler.GetPassword()
 				fmt.Println("Contraseña correcta")
 
@@ -480,6 +501,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 			// Cambiar tiempo de espera entre bucles
 			case 3:
 				primeraVezTiempo := true
@@ -539,6 +562,8 @@ func main() {
 					continue
 				}
 
+				fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -570,6 +595,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "TiempoDeEsperaEntreBucles": valorTiempoBucle}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 
 			// Cambiar numero de solicitudes por bucle
 			case 4:
@@ -630,6 +657,8 @@ func main() {
 					continue
 				}
 
+				fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -660,6 +689,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroDeSolicitudesPorBucle": valorNumeroSolBucle}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 
 			// Cambiar numero maximo de solicitudes por operacion
 			case 5:
@@ -720,6 +751,8 @@ func main() {
 					continue
 				}
 
+				fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -750,6 +783,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroMaximoDeSolicitudesPorOperacion": valorNumeroMaxPorOperacion}
+				fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg)
 
 			case 6:
 				// Volver al menú anterior = menú de ambiente (Producción/Desarrollo)
@@ -768,30 +803,44 @@ func main() {
 
 			// Enviar actualización solest a cada banco modificado (antes del health check)
 			SolestStatus := make(map[string]int)
+			var mu sync.Mutex
 			if bancos, ok := accionDetalles["bancos"].([]string); ok {
+				var wg sync.WaitGroup
 				for _, codigoBanco := range bancos {
-					url := "http://localhost:8080/simf/api/v1/config/solest?banco=" + codigoBanco + "&env=" + env
-					resp, err := http.Post(url, "application/json", nil)
-					if err != nil {
-						fmt.Println("Error enviando config al banco", codigoBanco, ":", err)
-						if b, ok := cfg[codigoBanco]; ok {
-							SolestStatus[b.Nombre] = 0
+					wg.Add(1)
+					go func(codigoBanco string) {
+						defer wg.Done()
+						url := "http://localhost:8080/simf/api/v1/config/solest?banco=" + codigoBanco + "&env=" + env
+						resp, err := http.Post(url, "application/json", nil)
+						if err != nil {
+							fmt.Println("Error enviando config al banco", codigoBanco, ":", err)
+							mu.Lock()
+							if b, ok := cfg[codigoBanco]; ok {
+								SolestStatus[b.Nombre] = 0
+							}
+							mu.Unlock()
+							return
 						}
-						continue
-					}
-					status := resp.StatusCode
-					resp.Body.Close()
-					if b, ok := cfg[codigoBanco]; ok {
-						SolestStatus[b.Nombre] = status
-					}
-					if resp.StatusCode >= 400 {
-						fmt.Println("Banco", codigoBanco, "respondió con status:", resp.StatusCode)
-					}
+						status := resp.StatusCode
+						resp.Body.Close()
+						mu.Lock()
+						if b, ok := cfg[codigoBanco]; ok {
+							SolestStatus[b.Nombre] = status
+						}
+						mu.Unlock()
+						if status >= 400 {
+							fmt.Println("Banco", codigoBanco, "respondió con status:", status)
+						}
+					}(codigoBanco)
 				}
+				wg.Wait()
 			}
 
 			// Health check al final de la opción elegida (después de guardar y enviar a bancos).
 			// Se muestra la tabla para todas las opciones, incluida Activar/Desactivar MS en bancos.
+			if accionNombre == "activar_desactivar_ms" {
+				fmt.Println("Health check después de Activar/Desactivar MS:")
+			}
 			health := api.RunHealthCheck(cfg)
 			tablaHealthCheck(health, SolestStatus)
 			fmt.Print("Presione Enter para continuar...")
@@ -871,6 +920,67 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 }
 
 // tabla health check
+
+func mostrarTablaConfig(cfg handler.Config) {
+	if len(cfg) == 0 {
+		fmt.Println("No hay datos de configuración para mostrar.")
+		return
+	}
+	columns := []table.Column{
+		{Title: "Codigo", Width: 10},
+		{Title: "Nombre", Width: 22},
+		{Title: "Endpoint", Width: 36},
+		{Title: "IP", Width: 16},
+		{Title: "Activar", Width: 8},
+		{Title: "Tiempo Bucle", Width: 12},
+		{Title: "Sol/Bucle", Width: 10},
+		{Title: "Max Sol/Op", Width: 11},
+	}
+	codes := make([]string, 0, len(cfg))
+	for code := range cfg {
+		codes = append(codes, code)
+	}
+	sort.Strings(codes)
+	rows := make([]table.Row, 0, len(codes))
+	for _, code := range codes {
+		b := cfg[code]
+		activar := "No"
+		if b.Envio.Activar {
+			activar = "Sí"
+		}
+		rows = append(rows, table.Row{
+			code,
+			b.Nombre,
+			b.Endpoint,
+			b.IP,
+			activar,
+			strconv.Itoa(b.Envio.TiempoDeEsperaEntreBucles),
+			strconv.Itoa(b.Envio.NumeroDeSolicitudesPorBucle),
+			strconv.Itoa(b.Envio.NumeroMaximoDeSolicitudesPorOperacion),
+		})
+	}
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(min(12, len(rows)+1)),
+	)
+	s := table.DefaultStyles()
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("20")).
+		Bold(false)
+	t.SetStyles(s)
+	m := src.NewTableViewModel(t)
+	if _, err := tea.NewProgram(m).Run(); err != nil {
+		fmt.Println("Error al mostrar tabla de configuración:", err)
+	}
+}
 
 func tablaHealthCheck(health api.HealthResponse, SolestStatus map[string]int) {
 	columns := []table.Column{
