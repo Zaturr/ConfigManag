@@ -14,7 +14,6 @@ import (
 	"v2/internal/server"
 	"v2/internal/src"
 
-	"github.com/SOLUCIONESSYCOM/scribe"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -38,16 +37,7 @@ func main() {
 	}()
 	//fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
-	if err := handler.Logs(); err != nil {
-		fmt.Println("Logs:", err)
-		os.Exit(1)
-	}
-	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
-
 	usuario, dispositivo := handler.GetUsuarioDispositivo()
-	handler.SetSesionUsuario(usuario, dispositivo)
-	horaInicio := time.Now().Format(time.RFC3339)
-	handler.LogSesionInicio(usuario, dispositivo, horaInicio)
 	defer func() {
 		handler.LogSesionCierre(usuario, dispositivo, time.Now().Format(time.RFC3339))
 	}()
@@ -71,6 +61,7 @@ func main() {
 		"Finalizar sesión y cerrar aplicación",
 	}
 
+	var sessionStartLogged bool
 	for {
 		menuEntorno := src.NewMenuModelWithTitle("¿En qué ambiente quiere realizar modificaciones?", []string{"Producción", "Desarrollo"})
 		envFinal, err := tea.NewProgram(menuEntorno).Run()
@@ -90,6 +81,16 @@ func main() {
 			env = handler.EnvProduccion
 		} else {
 			env = handler.EnvDesarrollo
+		}
+
+		if err := handler.Logs(env); err != nil {
+			fmt.Println("Logs:", err)
+			continue
+		}
+		handler.SetSesionUsuario(usuario, dispositivo)
+		if !sessionStartLogged {
+			handler.LogSesionInicio(usuario, dispositivo, time.Now().Format(time.RFC3339))
+			sessionStartLogged = true
 		}
 
 		configPath, err := handler.GetConfigPath(env)

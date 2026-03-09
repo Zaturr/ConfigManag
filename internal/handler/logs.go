@@ -14,10 +14,15 @@ var (
 	initialGlobalFields map[string]interface{} // copia para añadir Usuario/Dispositivo al iniciar sesión
 )
 
-func Logs() error {
-	env := os.Getenv("CONFIG_ENV")
-	if env == "" {
-		env = EnvProduccion
+// Logs inicializa los loggers solo para el entorno seleccionado:
+// - produccion → archivos en carpeta PROD
+// - desarrollo → archivos en carpeta CERT
+// Cualquier otro valor no crea loggers (apiLogger y auditLogger quedan nil).
+func Logs(env string) error {
+	if env != EnvProduccion && env != EnvDesarrollo {
+		apiLogger = nil
+		auditLogger = nil
+		return nil
 	}
 	basePath := GetLogsBasePath(env)
 
@@ -74,10 +79,6 @@ func Logs() error {
 	return nil
 }
 
-// SetSesionUsuario añade Usuario y Dispositivo a los campos globales de scribe para que
-// todas las entradas de log (api y audit) incluyan este dato en el JSON, con formato similar a:
-// {"Usuario":"usuario","Dispositivo":"PC01","level":"info","service_name":"Soles_logger",...}
-// Debe llamarse tras GetUsuarioDispositivo() al abrir la aplicación.
 func SetSesionUsuario(usuario, dispositivo string) {
 	if initialGlobalFields == nil {
 		return
