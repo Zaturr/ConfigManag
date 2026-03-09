@@ -71,6 +71,19 @@ func Logs() error {
 	return nil
 }
 
+// LogSolestPOST escribe en el log de API (solo archivo, sin consola) el POST de config solest a cada banco.
+// Usar solo para este mensaje para no llenar la consola; el apiLogger tiene Console: false.
+func LogSolestPOST(banco, url, body string) {
+	if apiLogger == nil {
+		return
+	}
+	apiLogger.Info().
+		Str("banco", banco).
+		Str("url", url).
+		Str("body", body).
+		Msg("POST solest config: body enviado al banco")
+}
+
 // LogTrace escribe en el log normal (api) una traza con mensaje y detalles opcionales.
 // Úsalo para flujo completo: menús, pasos, decisiones, errores recuperables, etc.
 func LogTrace(msg string, detalles map[string]interface{}) {

@@ -37,10 +37,10 @@ func main() {
 	}()
 	//fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
-	//if err := handler.Logs(); err != nil {
-	//	fmt.Println("Logs:", err)
-	//	os.Exit(1)
-	//}
+	if err := handler.Logs(); err != nil {
+		fmt.Println("Logs:", err)
+		os.Exit(1)
+	}
 	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
 	handler.StartInactivityTimer(handler.DefaultInactivityMinutes)
 	//fmt.Println("Configuración actual (Desarrollo):")

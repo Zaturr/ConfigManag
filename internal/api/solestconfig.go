@@ -10,7 +10,6 @@ import (
 
 	"v2/internal/handler"
 
-	"github.com/SOLUCIONESSYCOM/scribe"
 	"github.com/gin-gonic/gin"
 )
 
@@ -70,16 +69,8 @@ func SolestConfig(cfg handler.Config) gin.HandlerFunc {
 
 		}
 
-		// Log del body del POST para verificar envío
-		scribe.Info().
-			Str("banco", nombreBanco).
-			Str("url", urlBanco).
-			Str("body", string(BodyEnvio)).
-			Msg("POST solest config: body enviado al banco")
-
-		// En consola para verificar: URL y body que se envían al banco
-		fmt.Printf("[solest] POST al banco → URL: %s\n", urlBanco)
-		fmt.Printf("[solest] Body enviado: %s\n", string(BodyEnvio))
+		// Log solo a archivo (no consola) vía apiLogger
+		handler.LogSolestPOST(nombreBanco, urlBanco, string(BodyEnvio))
 
 		req, err := http.NewRequest(http.MethodPost, urlBanco, bytes.NewReader(BodyEnvio))
 		if err != nil {
