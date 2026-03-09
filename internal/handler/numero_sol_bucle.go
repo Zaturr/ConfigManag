@@ -13,6 +13,8 @@ type EditNumeroSolBucle struct {
 func NewEditNumeroSolBucle(placeholder string) EditNumeroSolBucle {
 	ti := textinput.New()
 	ti.Placeholder = placeholder
+	ti.Prompt = ":"
+
 	ti.Width = 50
 	ti.Focus()
 	return EditNumeroSolBucle{Input: ti}

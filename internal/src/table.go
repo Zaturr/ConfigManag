@@ -15,6 +15,8 @@ type TableModel struct {
 	Selectmap    map[int]struct{}
 	BaseRows     []table.Row
 	SingleSelect bool
+	// Confirmed: true si el usuario pulsó K (confirmar), false si pulsó Q (volver)
+	Confirmed bool
 }
 
 func NewTableModel(t table.Model) TableModel {
@@ -33,7 +35,7 @@ func newTableModel(t table.Model, singleSelect bool) TableModel {
 		baseRows[i] = make(table.Row, len(row))
 		copy(baseRows[i], row)
 	}
-	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows, SingleSelect: singleSelect}
+	return TableModel{Table: t, Selectmap: selectmap, BaseRows: baseRows, SingleSelect: singleSelect, Confirmed: false}
 }
 
 func (m TableModel) ApplySelectionMarkers() []table.Row {
@@ -74,17 +76,21 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
+		case "q", "ctrl+c":
+			// Única forma de retroceder: Q (ninguna otra tecla hace nada para volver)
+			m.Confirmed = false
+			return m, tea.Quit
+		case "k":
+			// Única forma de avanzar/confirmar: K (ninguna otra tecla hace nada para confirmar)
+			m.Confirmed = true
+			return m, tea.Quit
+
 		case "esc":
 			if m.Table.Focused() {
 				m.Table.Blur()
 			} else {
 				m.Table.Focus()
 			}
-		case "q", "ctrl+c":
-			return m, tea.Quit
-		case "k":
-			return m, tea.Quit
-
 		case "a":
 			if !m.SingleSelect {
 				if len(m.Selectmap) == len(m.BaseRows) {
@@ -119,9 +125,9 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	help := "Espacio/Enter = marcar   A = todos   K = confirmar   Q = volver"
+	help := "Espacio/Enter = marcar   A = todos   Solo K = confirmar   Solo Q = volver"
 	if m.SingleSelect {
-		help = "Enter/Espacio = marcar banco   K = confirmar   Q = volver"
+		help = "Enter/Espacio = marcar banco   Solo K = confirmar   Solo Q = volver"
 	}
 	return tableStyle.Render(m.Table.View()) + "\n" + help
 }

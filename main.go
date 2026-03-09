@@ -941,6 +941,10 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 	if !ok {
 		return nil, fmt.Errorf("no se pudo obtener el modelo de la tabla")
 	}
+	if !tbl.Confirmed {
+		// Usuario pulsó Q (volver): no devolver selección para que el menú vuelva atrás
+		return nil, nil
+	}
 	return tbl.SelectedRows(), nil
 }
 

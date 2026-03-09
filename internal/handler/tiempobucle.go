@@ -13,6 +13,7 @@ type EditTiempoBucle struct {
 func NewEditTiempoBucle(placeholder string) EditTiempoBucle {
 	ti := textinput.New()
 	ti.Placeholder = placeholder
+	ti.Prompt = ":"
 	ti.Width = 50
 	ti.Focus()
 	return EditTiempoBucle{Input: ti}

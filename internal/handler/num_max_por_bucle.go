@@ -13,6 +13,7 @@ type EditNumMaxPorBucle struct {
 func NewEditNumMaxPorBucle(placeholder string) EditNumMaxPorBucle {
 	ti := textinput.New()
 	ti.Placeholder = placeholder
+	ti.Prompt = ":"
 	ti.Width = 50
 	ti.Focus()
 	return EditNumMaxPorBucle{Input: ti}
