@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	apiLogger   *scribe.Scribe
-	auditLogger *scribe.Scribe
+	apiLogger           *scribe.Scribe
+	auditLogger         *scribe.Scribe
+	initialGlobalFields map[string]interface{} // copia para añadir Usuario/Dispositivo al iniciar sesión
 )
 
 func Logs() error {
@@ -25,7 +26,9 @@ func Logs() error {
 		"service_version": "1.0.0",
 		"service_id":      uuid.New().String(),
 		"env":             env,
+		"path":            basePath,
 	}
+	initialGlobalFields = appGlobalFields
 	scribe.SetGlobalFields(appGlobalFields)
 
 	config := &scribe.ConfigLogger{
@@ -71,8 +74,23 @@ func Logs() error {
 	return nil
 }
 
-// LogSolestPOST escribe en el log de API (solo archivo, sin consola) el POST de config solest a cada banco.
-// Usar solo para este mensaje para no llenar la consola; el apiLogger tiene Console: false.
+// SetSesionUsuario añade Usuario y Dispositivo a los campos globales de scribe para que
+// todas las entradas de log (api y audit) incluyan este dato en el JSON, con formato similar a:
+// {"Usuario":"usuario","Dispositivo":"PC01","level":"info","service_name":"Soles_logger",...}
+// Debe llamarse tras GetUsuarioDispositivo() al abrir la aplicación.
+func SetSesionUsuario(usuario, dispositivo string) {
+	if initialGlobalFields == nil {
+		return
+	}
+	merged := make(map[string]interface{}, len(initialGlobalFields)+2)
+	for k, v := range initialGlobalFields {
+		merged[k] = v
+	}
+	merged["Usuario"] = usuario
+	merged["Dispositivo"] = dispositivo
+	scribe.SetGlobalFields(merged)
+}
+
 func LogSolestPOST(banco, url, body string) {
 	if apiLogger == nil {
 		return
@@ -84,8 +102,6 @@ func LogSolestPOST(banco, url, body string) {
 		Msg("POST solest config: body enviado al banco")
 }
 
-// LogTrace escribe en el log normal (api) una traza con mensaje y detalles opcionales.
-// Úsalo para flujo completo: menús, pasos, decisiones, errores recuperables, etc.
 func LogTrace(msg string, detalles map[string]interface{}) {
 	if apiLogger == nil {
 		return
@@ -97,8 +113,6 @@ func LogTrace(msg string, detalles map[string]interface{}) {
 	ev.Msg(msg)
 }
 
-// LogAccion registra en el log de auditoría el final de una acción (entorno, acción y detalles).
-// Solo para eventos que deban quedar en auditoría (cambios de config, acciones críticas).
 func LogAccion(accion, entorno string, detalles map[string]interface{}) {
 	if auditLogger == nil {
 		return
@@ -108,4 +122,43 @@ func LogAccion(accion, entorno string, detalles map[string]interface{}) {
 		ev = ev.Interface(k, v)
 	}
 	ev.Msg("Acción realizada")
+}
+
+func GetUsuarioDispositivo() (usuario, dispositivo string) {
+	usuario = os.Getenv("USERNAME")
+	if usuario == "" {
+		usuario = os.Getenv("USER")
+	}
+	if usuario == "" {
+		usuario = "desconocido"
+	}
+	dispositivo, _ = os.Hostname()
+	if dispositivo == "" {
+		dispositivo = "desconocido"
+	}
+	return usuario, dispositivo
+}
+
+func LogSesionInicio(usuario, dispositivo, horaConexion string) {
+	if auditLogger == nil {
+		return
+	}
+	auditLogger.Info().
+		Str("accion", "sesion_inicio").
+		Str("usuario", usuario).
+		Str("dispositivo", dispositivo).
+		Str("hora_conexion", horaConexion).
+		Msg("Sesión Solest Manager iniciada")
+}
+
+func LogSesionCierre(usuario, dispositivo, horaCierre string) {
+	if auditLogger == nil {
+		return
+	}
+	auditLogger.Info().
+		Str("accion", "sesion_cierre").
+		Str("usuario", usuario).
+		Str("dispositivo", dispositivo).
+		Str("hora_cierre", horaCierre).
+		Msg("Sesión Solest Manager cerrada")
 }

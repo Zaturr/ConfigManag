@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"sync"
+	"time"
 	"v2/internal/api"
 	"v2/internal/handler"
 	"v2/internal/server"
@@ -42,6 +43,15 @@ func main() {
 		os.Exit(1)
 	}
 	scribe.Info().Msg("Loggers inicializados, iniciando aplicación")
+
+	usuario, dispositivo := handler.GetUsuarioDispositivo()
+	handler.SetSesionUsuario(usuario, dispositivo)
+	horaInicio := time.Now().Format(time.RFC3339)
+	handler.LogSesionInicio(usuario, dispositivo, horaInicio)
+	defer func() {
+		handler.LogSesionCierre(usuario, dispositivo, time.Now().Format(time.RFC3339))
+	}()
+
 	handler.StartInactivityTimer(handler.DefaultInactivityMinutes)
 	//fmt.Println("Configuración actual (Desarrollo):")
 
