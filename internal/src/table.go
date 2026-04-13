@@ -9,12 +9,14 @@ import (
 )
 
 var tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("240"))
+var headerStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("20"))
 
 type TableModel struct {
 	Table        table.Model
 	Selectmap    map[int]struct{}
 	BaseRows     []table.Row
 	SingleSelect bool
+	Header       string
 	// Confirmed: true si el usuario pulsó K (confirmar), false si pulsó Q (volver)
 	Confirmed bool
 }
@@ -25,6 +27,18 @@ func NewTableModel(t table.Model) TableModel {
 
 func NewTableModelSingleSelect(t table.Model) TableModel {
 	return newTableModel(t, true)
+}
+
+func NewTableModelWithHeader(t table.Model, header string) TableModel {
+	m := newTableModel(t, false)
+	m.Header = header
+	return m
+}
+
+func NewTableModelSingleSelectWithHeader(t table.Model, header string) TableModel {
+	m := newTableModel(t, true)
+	m.Header = header
+	return m
 }
 
 func newTableModel(t table.Model, singleSelect bool) TableModel {
@@ -125,9 +139,12 @@ func (m TableModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableModel) View() string {
-	help := "Espacio/Enter = marcar   A = todos   Solo K = confirmar   Solo Q = volver"
+	help := "Espacio/Enter = marcar   A = todos    K = confirmar    Q = volver"
 	if m.SingleSelect {
-		help = "Enter/Espacio = marcar banco   Solo K = confirmar   Solo Q = volver"
+		help = "Enter/Espacio = marcar banco    K = confirmar    Q = volver"
+	}
+	if m.Header != "" {
+		return headerStyle.Render(m.Header) + "\n" + tableStyle.Render(m.Table.View()) + "\n" + help
 	}
 	return tableStyle.Render(m.Table.View()) + "\n" + help
 }
@@ -137,7 +154,12 @@ func NewTableViewModel(t table.Model) TableViewModel {
 }
 
 type TableViewModel struct {
-	Table table.Model
+	Table  table.Model
+	Header string
+}
+
+func NewTableViewModelWithHeader(t table.Model, header string) TableViewModel {
+	return TableViewModel{Table: t, Header: header}
 }
 
 func (m TableViewModel) Init() tea.Cmd { return nil }
@@ -157,5 +179,8 @@ func (m TableViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TableViewModel) View() string {
+	if m.Header != "" {
+		return headerStyle.Render(m.Header) + "\n" + tableStyle.Render(m.Table.View()) + "\nEnter = continuar"
+	}
 	return tableStyle.Render(m.Table.View()) + "\nEnter = continuar"
 }

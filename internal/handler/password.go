@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/huh"
 )
 
-var ExpectedPassword = "123456" //(en caso de querer usar una contraseña hardcodeada, no se necesitarian las funciones del loadCredentialsConfig ni el init)
+var ExpectedPassword = "123456"
 
 //var ExpectedPassword = os.Getenv("CONFIG_PASSWORD")
 

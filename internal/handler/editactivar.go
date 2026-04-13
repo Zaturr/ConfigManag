@@ -67,7 +67,7 @@ func (m EditActivarModel) View() string {
 	for _, it := range m.Items {
 		title += "    " + it.Code + "  " + it.Name + "\n"
 	}
-	title += "  Desea activar o desactivar la solicitud de estado para estos bancos\n"
+	title += "  ¿Desea activar o desactivar la solicitud de estado para estos bancos?\n"
 	si := "  Activar "
 	no := "  Desactivar "
 	if m.Cursor == OpcionSi {

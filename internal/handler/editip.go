@@ -45,5 +45,5 @@ func (m EditIPModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m EditIPModel) View() string {
-	return "Nuevo IP: " + m.Input.View() + "\nEnter = guardar   q = cancelar"
+	return "Nueva IP: " + m.Input.View() + "\nEnter = guardar   q = cancelar"
 }

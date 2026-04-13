@@ -7,6 +7,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"v2/internal/api"
@@ -22,6 +23,8 @@ import (
 
 func main() {
 
+	fmt.Print("\033[8;45;170t")
+
 	fmt.Println("Contraseña correcta")
 
 	// Suprimir logs de Gin en consola; los de scribe se mantienen
@@ -35,7 +38,6 @@ func main() {
 			//fmt.Println("Servidor API:", err)
 		}
 	}()
-	//fmt.Println("API escuchando en http://localhost:8080 (GET /api/v1/health)")
 
 	usuario, dispositivo := handler.GetUsuarioDispositivo()
 	defer func() {
@@ -52,12 +54,12 @@ func main() {
 	}
 	opcionesMenu := []string{
 
-		"Activar/Desactivar MS en bancos",
-		"Cambiar configuracion del endpoint",
-		"Cambiar configuracion de la ip",
-		"Cambiar configuracion del tiempo de espera entre bucles",
-		"Cambiar configuracion del numero de solicitudes por bucle",
-		"Cambiar configuracion del numero maximo de solicitudes por operacion",
+		"Activar/Desactivar servicio de solicitud de estado en bancos",
+		"Cambiar configuración del endpoint",
+		"Cambiar configuración de la IP",
+		"Cambiar configuración del tiempo de espera entre bucles",
+		"Cambiar configuración del número de solicitudes por bucle",
+		"Cambiar configuración del número máximo de solicitudes por operación",
 		"Finalizar sesión y cerrar aplicación",
 	}
 
@@ -107,6 +109,7 @@ func main() {
 			fmt.Println("Error al cargar configuración:", err)
 			continue
 		}
+		fmt.Println("Configuración actual:")
 		mostrarTablaConfig(cfgAmbiente)
 
 		for menuLoop := true; menuLoop; {
@@ -154,8 +157,8 @@ func main() {
 			case 0:
 				// Health check ANTES de Activar/Desactivar
 				healthAntes := api.RunHealthCheck(cfg)
-				fmt.Println("Health check antes de Activar/Desactivar MS:")
-				tablaHealthCheck(healthAntes, nil)
+				fmt.Println("Health check antes de Activar/Desactivar servicio de solicitud de estado:")
+				tablaHealthCheck(healthAntes)
 				fmt.Print("Presione Enter para continuar...")
 				var enterAntes string
 				fmt.Scanln(&enterAntes)
@@ -215,158 +218,158 @@ func main() {
 						wantNumeroSolBucle = false
 						wantNumeroMaxOp = false
 						configAbort := false
-						// 1) Tiempo de espera entre bucles
-						menuTiempo := src.NewMenuModelWithTitle("¿Desea cambiar la configuracion del tiempo de espera entre bucles?", []string{"Sí", "No"})
-						progTiempo, err := tea.NewProgram(menuTiempo).Run()
-						if err != nil {
-							fmt.Println("Error:", err)
-							os.Exit(1)
-						}
-						mTiempo := progTiempo.(src.MenuModel)
-						if mTiempo.SelectedIndex() < 0 {
-							configAbort = true
-						} else if mTiempo.SelectedIndex() == 0 {
-							valorConfirmado := false
-							for {
-								TiempoBucle := handler.NewEditTiempoBucle("10")
-								TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
-								if err != nil {
-									fmt.Println("Error:", err)
-									os.Exit(1)
-								}
-								TiempoBucleModel := TiempoBucleFinal.(handler.EditTiempoBucle)
-								newTiempoBucle, cancelledT := TiempoBucleModel.GetTiempoBucle()
-								if cancelledT || newTiempoBucle == "" {
-									break
-								}
-								valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
-								if err != nil {
-									fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
-									fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								valorConfirmado = true
-								wantTiempoBucle = true
-								break
-							}
-							if !valorConfirmado {
-								configAbort = true
-							}
-						}
+						// // 1) Tiempo de espera entre bucles
+						// menuTiempo := src.NewMenuModelWithTitle("¿Desea cambiar la configuración del tiempo de espera entre bucles?", []string{"Sí", "No"})
+						// progTiempo, err := tea.NewProgram(menuTiempo).Run()
+						// if err != nil {
+						// 	fmt.Println("Error:", err)
+						// 	os.Exit(1)
+						// }
+						// mTiempo := progTiempo.(src.MenuModel)
+						// if mTiempo.SelectedIndex() < 0 {
+						// 	configAbort = true
+						// } else if mTiempo.SelectedIndex() == 0 {
+						// 	valorConfirmado := false
+						// 	for {
+						// 		TiempoBucle := handler.NewEditTiempoBucle("10")
+						// 		TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
+						// 		if err != nil {
+						// 			fmt.Println("Error:", err)
+						// 			os.Exit(1)
+						// 		}
+						// 		TiempoBucleModel := TiempoBucleFinal.(handler.EditTiempoBucle)
+						// 		newTiempoBucle, cancelledT := TiempoBucleModel.GetTiempoBucle()
+						// 		if cancelledT || newTiempoBucle == "" {
+						// 			break
+						// 		}
+						// 		valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
+						// 		if err != nil {
+						// 			fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
+						// 			fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		valorConfirmado = true
+						// 		wantTiempoBucle = true
+						// 		break
+						// 	}
+						// 	if !valorConfirmado {
+						// 		configAbort = true
+						// 	}
+						// }
+						// if configAbort {
+						// 	continue
+						// }
+						//
+						// // 2) Número de solicitudes por bucle
+						// menuSolBucle := src.NewMenuModelWithTitle("¿Desea cambiar la configuración del número de solicitudes por bucle?", []string{"Sí", "No"})
+						// progSolBucle, err := tea.NewProgram(menuSolBucle).Run()
+						// if err != nil {
+						// 	fmt.Println("Error:", err)
+						// 	os.Exit(1)
+						// }
+						// mSolBucle := progSolBucle.(src.MenuModel)
+						// if mSolBucle.SelectedIndex() < 0 {
+						// 	configAbort = true
+						// } else if mSolBucle.SelectedIndex() == 0 {
+						// 	valorConfirmado := false
+						// 	for {
+						// 		NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
+						// 		NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
+						// 		if err != nil {
+						// 			fmt.Println("Error:", err)
+						// 			os.Exit(1)
+						// 		}
+						// 		NumeroSolBucleModel := NumeroSolBucleFinal.(handler.EditNumeroSolBucle)
+						// 		newNumeroSolBucle, cancelledN := NumeroSolBucleModel.GetNumeroSolBucle()
+						// 		if cancelledN || newNumeroSolBucle == "" {
+						// 			break
+						// 		}
+						// 		valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
+						// 		if err != nil {
+						// 			fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
+						// 			fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		valorConfirmado = true
+						// 		wantNumeroSolBucle = true
+						// 		break
+						// 	}
+						// 	if !valorConfirmado {
+						// 		configAbort = true
+						// 	}
+						// }
 						if configAbort {
 							continue
 						}
-
-						// 2) Número de solicitudes por bucle
-						menuSolBucle := src.NewMenuModelWithTitle("¿Desea cambiar la configuracion del numero de solicitudes por bucle?", []string{"Sí", "No"})
-						progSolBucle, err := tea.NewProgram(menuSolBucle).Run()
-						if err != nil {
-							fmt.Println("Error:", err)
-							os.Exit(1)
-						}
-						mSolBucle := progSolBucle.(src.MenuModel)
-						if mSolBucle.SelectedIndex() < 0 {
-							configAbort = true
-						} else if mSolBucle.SelectedIndex() == 0 {
-							valorConfirmado := false
-							for {
-								NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
-								NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
-								if err != nil {
-									fmt.Println("Error:", err)
-									os.Exit(1)
-								}
-								NumeroSolBucleModel := NumeroSolBucleFinal.(handler.EditNumeroSolBucle)
-								newNumeroSolBucle, cancelledN := NumeroSolBucleModel.GetNumeroSolBucle()
-								if cancelledN || newNumeroSolBucle == "" {
-									break
-								}
-								valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
-								if err != nil {
-									fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
-									fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								valorConfirmado = true
-								wantNumeroSolBucle = true
-								break
-							}
-							if !valorConfirmado {
-								configAbort = true
-							}
-						}
-						if configAbort {
-							continue
-						}
-
-						// 3) Número max de solicitudes por operación
-						menuMaxOp := src.NewMenuModelWithTitle("¿Desea cambiar la configuracion del numero maximo de solicitudes por operacion?", []string{"Sí", "No"})
-						progMaxOp, err := tea.NewProgram(menuMaxOp).Run()
-						if err != nil {
-							fmt.Println("Error:", err)
-							os.Exit(1)
-						}
-						mMaxOp := progMaxOp.(src.MenuModel)
-						if mMaxOp.SelectedIndex() < 0 {
-							configAbort = true
-						} else if mMaxOp.SelectedIndex() == 0 {
-							valorConfirmado := false
-							for {
-								NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
-								NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
-								if err != nil {
-									fmt.Println("Error:", err)
-									os.Exit(1)
-								}
-								NumeroMaxPorOperacionModel := NumeroMaxPorOperacionFinal.(handler.EditNumMaxPorBucle)
-								newNumeroMaxPorOperacion, cancelledM := NumeroMaxPorOperacionModel.GetNumMaxPorBucle()
-								if cancelledM || newNumeroMaxPorOperacion == "" {
-									break
-								}
-								valorNumeroMaxOp, err = strconv.Atoi(newNumeroMaxPorOperacion)
-								if err != nil {
-									fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								if valorNumeroMaxOp < 1 || valorNumeroMaxOp > 5 {
-									fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
-									fmt.Print("Presione Enter para continuar...")
-									var discard string
-									fmt.Scanln(&discard)
-									continue
-								}
-								valorConfirmado = true
-								wantNumeroMaxOp = true
-								break
-							}
-							if !valorConfirmado {
-								configAbort = true
-							}
-						}
-						if configAbort {
-							continue
-						}
+						//
+						// // 3) Número max de solicitudes por operación
+						// menuMaxOp := src.NewMenuModelWithTitle("¿Desea cambiar la configuración del número máximo de solicitudes por operación?", []string{"Sí", "No"})
+						// progMaxOp, err := tea.NewProgram(menuMaxOp).Run()
+						// if err != nil {
+						// 	fmt.Println("Error:", err)
+						// 	os.Exit(1)
+						// }
+						// mMaxOp := progMaxOp.(src.MenuModel)
+						// if mMaxOp.SelectedIndex() < 0 {
+						// 	configAbort = true
+						// } else if mMaxOp.SelectedIndex() == 0 {
+						// 	valorConfirmado := false
+						// 	for {
+						// 		NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
+						// 		NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
+						// 		if err != nil {
+						// 			fmt.Println("Error:", err)
+						// 			os.Exit(1)
+						// 		}
+						// 		NumeroMaxPorOperacionModel := NumeroMaxPorOperacionFinal.(handler.EditNumMaxPorBucle)
+						// 		newNumeroMaxPorOperacion, cancelledM := NumeroMaxPorOperacionModel.GetNumMaxPorBucle()
+						// 		if cancelledM || newNumeroMaxPorOperacion == "" {
+						// 			break
+						// 		}
+						// 		valorNumeroMaxOp, err = strconv.Atoi(newNumeroMaxPorOperacion)
+						// 		if err != nil {
+						// 			fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		if valorNumeroMaxOp < 1 || valorNumeroMaxOp > 5 {
+						// 			fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
+						// 			fmt.Print("Presione Enter para continuar...")
+						// 			var discard string
+						// 			fmt.Scanln(&discard)
+						// 			continue
+						// 		}
+						// 		valorConfirmado = true
+						// 		wantNumeroMaxOp = true
+						// 		break
+						// 	}
+						// 	if !valorConfirmado {
+						// 		configAbort = true
+						// 	}
+						// }
+						// if configAbort {
+						// 	continue
+						// }
 
 						// Opción final: solo al elegir "Realizar cambios" se pide contraseña y se aplica
 						menuAplicar := src.NewMenuModelWithTitle("¿Desea realizar los cambios? (se pedirá contraseña)", []string{"Realizar cambios", "Volver"})
@@ -549,7 +552,7 @@ func main() {
 					}
 					valorConfirmado := false
 					for {
-						TiempoBucle := handler.NewEditTiempoBucle("10")
+						TiempoBucle := handler.NewEditTiempoBucle("20")
 						TiempoBucleFinal, err := tea.NewProgram(TiempoBucle).Run()
 						if err != nil {
 							fmt.Println("Error:", err)
@@ -568,8 +571,8 @@ func main() {
 							fmt.Scanln(&discard)
 							continue
 						}
-						if valorTiempoBucle < 1 || valorTiempoBucle > 10 {
-							fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						if valorTiempoBucle < 1 || valorTiempoBucle > 20 {
+							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
 							fmt.Print("Presione Enter para continuar...")
 							var discard string
 							fmt.Scanln(&discard)
@@ -644,7 +647,7 @@ func main() {
 					}
 					valorConfirmadoSolBucle := false
 					for {
-						NumeroSolBucle := handler.NewEditNumeroSolBucle("10")
+						NumeroSolBucle := handler.NewEditNumeroSolBucle("20")
 						NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
 						if err != nil {
 							fmt.Println("Error:", err)
@@ -663,8 +666,8 @@ func main() {
 							fmt.Scanln(&discard)
 							continue
 						}
-						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 10 {
-							fmt.Println("El valor debe estar entre 1 y 10. Intente de nuevo o cancele con q.")
+						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 20 {
+							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
 							fmt.Print("Presione Enter para continuar...")
 							var discard string
 							fmt.Scanln(&discard)
@@ -738,7 +741,7 @@ func main() {
 					}
 					valorConfirmadoMaxOp := false
 					for {
-						NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("5")
+						NumeroMaxPorOperacion := handler.NewEditNumMaxPorBucle("15")
 						NumeroMaxPorOperacionFinal, err := tea.NewProgram(NumeroMaxPorOperacion).Run()
 						if err != nil {
 							fmt.Println("Error:", err)
@@ -757,8 +760,8 @@ func main() {
 							fmt.Scanln(&discard)
 							continue
 						}
-						if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 5 {
-							fmt.Println("El valor debe estar entre 1 y 5. Intente de nuevo o cancele con q.")
+						if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 15 {
+							fmt.Println("El valor debe estar entre 1 y 15. Intente de nuevo o cancele con q.")
 							fmt.Print("Presione Enter para continuar...")
 							var discard string
 							fmt.Scanln(&discard)
@@ -826,7 +829,21 @@ func main() {
 				os.Exit(1)
 			}
 
-			// Enviar actualización solest a cada banco modificado (antes del health check)
+			// Health check y tabla ANTES de enviar a los bancos, para poder revisar el estado
+			if bancosPre, ok := accionDetalles["bancos"].([]string); ok && len(bancosPre) > 0 {
+				if accionNombre == "activar_desactivar_ms" {
+					fmt.Println("Health check antes de enviar (Activar/Desactivar servicio de solicitud de estado):")
+				} else {
+					fmt.Println("Health check antes de enviar la configuración a los bancos:")
+				}
+				healthPre := api.RunHealthCheck(cfg)
+				tablaHealthCheck(healthPre)
+				fmt.Print("Presione Enter para enviar la configuración a los bancos...")
+				var enterPre string
+				fmt.Scanln(&enterPre)
+			}
+
+			// Enviar actualización solest a cada banco modificado
 			SolestStatus := make(map[string]int)
 			var mu sync.Mutex
 			if bancos, ok := accionDetalles["bancos"].([]string); ok {
@@ -839,7 +856,7 @@ func main() {
 						client := &http.Client{Timeout: 10 * time.Second}
 						resp, err := client.Post(url, "application/json", nil)
 						if err != nil {
-							fmt.Println("Error enviando config al banco", codigoBanco, ":", err)
+							fmt.Println("Error al enviar la configuración al banco", codigoBanco, ":", err)
 							mu.Lock()
 							if b, ok := cfg[codigoBanco]; ok {
 								SolestStatus[b.Nombre] = 0
@@ -855,7 +872,7 @@ func main() {
 						}
 						mu.Unlock()
 						if status >= 400 {
-							fmt.Println("Banco", codigoBanco, "respondió con status:", status)
+							fmt.Println("\nBanco", codigoBanco, "respondió con status:", status)
 						}
 					}(codigoBanco)
 				}
@@ -865,10 +882,10 @@ func main() {
 			// Health check al final de la opción elegida (después de guardar y enviar a bancos).
 			// Se muestra la tabla para todas las opciones, incluida Activar/Desactivar MS en bancos.
 			if accionNombre == "activar_desactivar_ms" {
-				fmt.Println("Health check después de Activar/Desactivar MS:")
+				fmt.Println("Health check después de Activar/Desactivar servicio de solicitud de estado:")
 			}
 			health := api.RunHealthCheck(cfg)
-			tablaHealthCheck(health, SolestStatus)
+			tablaHealthCheck(health)
 			fmt.Print("Presione Enter para continuar...")
 			var enter string
 			fmt.Scanln(&enter)
@@ -878,9 +895,9 @@ func main() {
 
 			handler.LogAccion(accionNombre, env, accionDetalles)
 
-			loading := src.NewLoadingModel("Cargando Configuracion...")
+			loading := src.NewLoadingModel("Cargando configuración...")
 			if _, err := tea.NewProgram(loading).Run(); err != nil {
-				fmt.Println("Se presento un error al cargar la configuracion:", err)
+				fmt.Println("Se presentó un error al cargar la configuración:", err)
 				os.Exit(1)
 			}
 
@@ -896,9 +913,9 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 	}
 	columns := []table.Column{
 		{Title: " ", Width: 4},
-		{Title: "Codigo", Width: 10},
+		{Title: "Código", Width: 10},
 		{Title: "Nombre de Banco", Width: 30},
-		{Title: "ip del servidor", Width: 20},
+		{Title: "IP del servidor", Width: 20},
 	}
 	codes := make([]string, 0, len(cfg))
 	for code := range cfg {
@@ -929,9 +946,9 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 	t.SetStyles(s)
 	var m src.TableModel
 	if singleSelect {
-		m = src.NewTableModelSingleSelect(t)
+		m = src.NewTableModelSingleSelectWithHeader(t, "Selección de banco")
 	} else {
-		m = src.NewTableModel(t)
+		m = src.NewTableModelWithHeader(t, "Selección de bancos")
 	}
 	finalModel, err := tea.NewProgram(m).Run()
 	if err != nil {
@@ -957,7 +974,7 @@ func mostrarTablaConfig(cfg handler.Config) {
 		return
 	}
 	columns := []table.Column{
-		{Title: "Codigo", Width: 10},
+		{Title: "Código", Width: 10},
 		{Title: "Nombre", Width: 22},
 		{Title: "Endpoint", Width: 36},
 		{Title: "IP", Width: 16},
@@ -1006,17 +1023,32 @@ func mostrarTablaConfig(cfg handler.Config) {
 		Background(lipgloss.Color("20")).
 		Bold(false)
 	t.SetStyles(s)
-	m := src.NewTableViewModel(t)
+	m := src.NewTableViewModelWithHeader(t, "Configuración actual")
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error al mostrar tabla de configuración:", err)
 	}
 }
 
-func tablaHealthCheck(health api.HealthResponse, SolestStatus map[string]int) {
+// healthEstadoParaTabla traduce el texto del health check a un estado claro para la tabla.
+func healthEstadoParaTabla(raw string) string {
+	switch {
+	case raw == "sin IP en configuración":
+		return "Sin IP en configuración"
+	case strings.HasPrefix(raw, "OFFLINE:"):
+		return "OFFLINE"
+	case raw == "ONLINE":
+		return "ONLINE"
+	case strings.HasPrefix(raw, "HTTP "):
+		return "ONLINE"
+	default:
+		return raw
+	}
+}
+
+func tablaHealthCheck(health api.HealthResponse) {
 	columns := []table.Column{
 		{Title: "Banco", Width: 40},
-		{Title: "Estado", Width: 30},
-		{Title: "Status http", Width: 30},
+		{Title: "Estado", Width: 40},
 	}
 	names := make([]string, 0, len(health.Checks))
 	for n := range health.Checks {
@@ -1024,13 +1056,13 @@ func tablaHealthCheck(health api.HealthResponse, SolestStatus map[string]int) {
 	}
 	sort.Strings(names)
 	rows := make([]table.Row, 0, len(names)+1)
-	rows = append(rows, table.Row{"Status general", health.Status, "-"})
+	estadoGeneral := "Sin errores"
+	if health.Status == "Error" {
+		estadoGeneral = "Hay errores"
+	}
+	rows = append(rows, table.Row{"Estado general", estadoGeneral})
 	for _, n := range names {
-		statusStr := "-"
-		if code, ok := SolestStatus[n]; ok {
-			statusStr = strconv.Itoa(code)
-		}
-		rows = append(rows, table.Row{n, health.Checks[n], statusStr})
+		rows = append(rows, table.Row{n, healthEstadoParaTabla(health.Checks[n])})
 	}
 	t := table.New(
 		table.WithColumns(columns),
@@ -1049,7 +1081,7 @@ func tablaHealthCheck(health api.HealthResponse, SolestStatus map[string]int) {
 		Background(lipgloss.Color("20")).
 		Bold(false)
 	t.SetStyles(s)
-	m := src.NewTableViewModel(t)
+	m := src.NewTableViewModelWithHeader(t, "Health check")
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error al mostrar health check:", err)
 	}

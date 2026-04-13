@@ -80,7 +80,7 @@ func (m LoadingModel) View() string {
 		out += pad + m.Description + "\n\n"
 	}
 	out += pad + m.Progress.View() + "\n\n" +
-		pad + helpStyle("Press any key to quit")
+		pad + helpStyle("Pulse cualquier tecla para salir")
 	return out
 }
 

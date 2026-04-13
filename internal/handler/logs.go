@@ -61,7 +61,7 @@ func Logs(env string) error {
 		MaxBackups:        5,
 		MaxAgeDay:         30,
 		Compress:          false,
-		Console:           true,
+		Console:           false,
 		BeutifyConsoleLog: false,
 		File:              true,
 	}

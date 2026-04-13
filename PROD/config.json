@@ -1,0 +1,335 @@
+{
+  "Produccion": {
+    "0001": {
+      "nombre": "bcv",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0102": {
+      "nombre": "Banco de Venezuela",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.111",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0104": {
+      "nombre": "BVC",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0105": {
+      "nombre": "Banco Mercantil",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0108": {
+      "nombre": "Provincial",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0114": {
+      "nombre": "Bancaribe",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0115": {
+      "nombre": "Exterior",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0128": {
+      "nombre": "Caroní",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0134": {
+      "nombre": "Banesco",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0137": {
+      "nombre": "Sofitasa",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0138": {
+      "nombre": "Plaza",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0145": {
+      "nombre": "BancoEx",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0146": {
+      "nombre": "Bangente",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0151": {
+      "nombre": "BFC",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0152": {
+      "nombre": "Bandes",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0156": {
+      "nombre": "100%Banco",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0157": {
+      "nombre": "DELSUR",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0163": {
+      "nombre": "Tesoro",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0166": {
+      "nombre": "Agricola",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0168": {
+      "nombre": "Bancrecer",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0169": {
+      "nombre": "R4",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0171": {
+      "nombre": "Activo",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0172": {
+      "nombre": "Bancamiga",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0173": {
+      "nombre": "BID",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0174": {
+      "nombre": "Banplus",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0175": {
+      "nombre": "BDT",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0177": {
+      "nombre": "BANFANB",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0178": {
+      "nombre": "N58",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0191": {
+      "nombre": "BNC",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    },
+    "0601": {
+      "nombre": "IMCP",
+      "endpoint": "/simf/api/v1/config/solest",
+      "ip": "192.168.100.230",
+      "envio": {
+        "Activar": true,
+        "TiempoDeEsperaEntreBucles": 10,
+        "NumeroDeSolicitudesPorBucle": 10,
+        "NumeroMaximoDeSolicitudesPorOperacion": 5
+      }
+    }
+  },
+  "Desarrollo": null
+}

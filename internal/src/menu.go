@@ -63,7 +63,7 @@ func (m MenuModel) View() string {
 	var b strings.Builder
 	titulo := m.Titulo
 	if titulo == "" {
-		titulo = "¿En que ambiente quiere realizar modificaciones?"
+		titulo = "¿En qué ambiente quiere realizar modificaciones?"
 	}
 	b.WriteString(titulo + "\n\n")
 	for i, op := range m.Opciones {
