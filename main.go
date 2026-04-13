@@ -23,7 +23,7 @@ import (
 
 func main() {
 
-	fmt.Print("\033[8;45;170t")
+	fmt.Print("\033[8;30;143t")
 
 	fmt.Println("Contraseña correcta")
 
