@@ -9,7 +9,7 @@ import (
 )
 
 var tableStyle = lipgloss.NewStyle().BorderStyle(lipgloss.NormalBorder()).BorderForeground(lipgloss.Color("240"))
-var headerStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("20"))
+var headerStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("226"))
 
 type TableModel struct {
 	Table        table.Model

@@ -5,10 +5,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0102": {
@@ -16,10 +16,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.111",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0104": {
@@ -27,10 +27,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0105": {
@@ -38,10 +38,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0108": {
@@ -49,10 +49,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0114": {
@@ -60,10 +60,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0115": {
@@ -71,10 +71,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0128": {
@@ -82,10 +82,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0134": {
@@ -93,10 +93,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0137": {
@@ -104,10 +104,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0138": {
@@ -115,10 +115,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0145": {
@@ -126,10 +126,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0146": {
@@ -137,10 +137,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0151": {
@@ -148,10 +148,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0152": {
@@ -159,10 +159,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0156": {
@@ -170,10 +170,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0157": {
@@ -181,10 +181,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0163": {
@@ -192,10 +192,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0166": {
@@ -203,10 +203,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0168": {
@@ -214,10 +214,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0169": {
@@ -225,10 +225,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0171": {
@@ -236,10 +236,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0172": {
@@ -247,10 +247,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0173": {
@@ -258,10 +258,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0174": {
@@ -269,10 +269,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0175": {
@@ -280,10 +280,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0177": {
@@ -291,10 +291,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0178": {
@@ -302,10 +302,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0191": {
@@ -313,10 +313,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     },
     "0601": {
@@ -324,10 +324,10 @@
       "endpoint": "/simf/api/v1/config/solest",
       "ip": "192.168.100.230",
       "envio": {
-        "Activar": true,
-        "TiempoDeEsperaEntreBucles": 10,
-        "NumeroDeSolicitudesPorBucle": 10,
-        "NumeroMaximoDeSolicitudesPorOperacion": 5
+        "Activar": false,
+        "TiempoDeEsperaEntreBucles": 20,
+        "NumeroDeSolicitudesPorBucle": 20,
+        "NumeroMaximoDeSolicitudesPorOperacion": 15
       }
     }
   },

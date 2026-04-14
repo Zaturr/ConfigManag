@@ -21,6 +21,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Títulos de las tablas interactivas (bubbletea); el texto impreso con fmt.Println encima puede mantenerse o alinearse con estos.
+const (
+	tituloTablaCfgAntes   = "Configuración de los bancos (antes de los cambios)"
+	tituloTablaCfgDespues = "Configuración de los bancos (después de los cambios)"
+	tituloTablaCfg        = "Configuración de los bancos"
+
+	tituloHealthAntesActivarMS = "Conexión con los bancos (antes de Activar/Desactivar)"
+	tituloHealthAntesEnviar    = "Conexión con los bancos (antes de enviar)"
+	tituloHealthDespuesEnviar  = "Conexión con los bancos (después de enviar)"
+	tituloHealth               = "Conexión con los bancos"
+)
+
 func main() {
 
 	fmt.Print("\033[8;30;143t")
@@ -60,6 +72,8 @@ func main() {
 		"Cambiar configuración del tiempo de espera entre bucles",
 		"Cambiar configuración del número de solicitudes por bucle",
 		"Cambiar configuración del número máximo de solicitudes por operación",
+		"Mostrar configuración actual",
+		"Mostrar health check actual",
 		"Finalizar sesión y cerrar aplicación",
 	}
 
@@ -110,7 +124,7 @@ func main() {
 			continue
 		}
 		fmt.Println("Configuración actual:")
-		mostrarTablaConfig(cfgAmbiente)
+		mostrarTablaConfig(cfgAmbiente, tituloTablaCfg)
 
 		for menuLoop := true; menuLoop; {
 			menuModel := src.NewMenuModelWithTitle("¿Qué desea hacer?", opcionesMenu)
@@ -126,16 +140,16 @@ func main() {
 				menuLoop = false
 				continue
 			}
-			if idx == 6 {
+			if idx == 8 {
 				return
 			}
 
 			cfg, err := handler.LoadConfig(env)
 			if err != nil {
 				fmt.Println("Error al cargar configuración:", err)
-				fmt.Print("Presione Enter para continuar...")
-				var discard string
-				fmt.Scanln(&discard)
+				//fmt.Print("Presione Enter para continuar...")
+				//var discard string
+				//fmt.Scanln(&discard)
 				os.Exit(1)
 			}
 
@@ -156,12 +170,10 @@ func main() {
 
 			case 0:
 				// Health check ANTES de Activar/Desactivar
+				fmt.Println("Verificando conexion, espere por favor:")
 				healthAntes := api.RunHealthCheck(cfg)
-				fmt.Println("Health check antes de Activar/Desactivar servicio de solicitud de estado:")
-				tablaHealthCheck(healthAntes)
-				fmt.Print("Presione Enter para continuar...")
-				var enterAntes string
-				fmt.Scanln(&enterAntes)
+				//fmt.Println("Health check antes de Activar/Desactivar servicio de solicitud de estado:")
+				tablaHealthCheck(healthAntes, tituloHealthAntesActivarMS, healthFilterNamesFromCodes(cfg, selectedCodesFromRows(selectedRows))...)
 
 				primeraVez := true
 				var rowsActivar []table.Row
@@ -397,8 +409,8 @@ func main() {
 						}
 					}
 
-					fmt.Println("Configuración actual (antes de aplicar cambios):")
-					mostrarTablaConfig(cfg)
+					//fmt.Println("Configuración actual (antes de aplicar cambios):")
+					mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(rowsActivar)...)
 					_, err = handler.GetPassword()
 					fmt.Println("Contraseña correcta")
 
@@ -436,8 +448,8 @@ func main() {
 				if len(rowsActivar) == 0 {
 					continue
 				}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
+				//	fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(rowsActivar)...)
 
 			// Cambiar endpoint
 			case 1:
@@ -455,8 +467,8 @@ func main() {
 					continue
 				}
 
-				fmt.Println("Configuración actual (antes de aplicar cambios):")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(selectedRows)...)
 				_, err = handler.GetPassword()
 				fmt.Println("Contraseña correcta")
 				for _, row := range selectedRows {
@@ -482,8 +494,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosEp, "endpoint": newEndpoint}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(selectedRows)...)
 
 			// Cambiar IP
 			case 2:
@@ -501,8 +513,8 @@ func main() {
 					continue
 				}
 
-				fmt.Println("Configuración actual (antes de aplicar cambios):")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(selectedRows)...)
 				_, err = handler.GetPassword()
 				fmt.Println("Contraseña correcta")
 
@@ -529,8 +541,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosIP, "ip": newIP}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(selectedRows)...)
 			// Cambiar tiempo de espera entre bucles
 			case 3:
 				primeraVezTiempo := true
@@ -566,16 +578,16 @@ func main() {
 						valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						if valorTiempoBucle < 1 || valorTiempoBucle > 20 {
 							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						valorConfirmado = true
@@ -590,8 +602,8 @@ func main() {
 					continue
 				}
 
-				fmt.Println("Configuración actual (antes de aplicar cambios):")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(rowsTiempoBucle)...)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -623,8 +635,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "TiempoDeEsperaEntreBucles": valorTiempoBucle}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(rowsTiempoBucle)...)
 
 			// Cambiar numero de solicitudes por bucle
 			case 4:
@@ -661,16 +673,16 @@ func main() {
 						valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 20 {
 							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						valorConfirmadoSolBucle = true
@@ -685,8 +697,8 @@ func main() {
 					continue
 				}
 
-				fmt.Println("Configuración actual (antes de aplicar cambios):")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(rowsNumeroSolBucle)...)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -717,8 +729,8 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroDeSolicitudesPorBucle": valorNumeroSolBucle}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(rowsNumeroSolBucle)...)
 
 			// Cambiar numero maximo de solicitudes por operacion
 			case 5:
@@ -755,16 +767,16 @@ func main() {
 						valorNumeroMaxPorOperacion, err = strconv.Atoi(newNumeroMaxPorOperacion)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 15 {
 							fmt.Println("El valor debe estar entre 1 y 15. Intente de nuevo o cancele con q.")
-							fmt.Print("Presione Enter para continuar...")
-							var discard string
-							fmt.Scanln(&discard)
+							//fmt.Print("Presione Enter para continuar...")
+							//var discard string
+							//fmt.Scanln(&discard)
 							continue
 						}
 						valorConfirmadoMaxOp = true
@@ -779,8 +791,8 @@ func main() {
 					continue
 				}
 
-				fmt.Println("Configuración actual (antes de aplicar cambios):")
-				mostrarTablaConfig(cfg)
+				//fmt.Println("Configuración actual (antes de aplicar cambios):")
+				mostrarTablaConfig(cfg, tituloTablaCfgAntes, selectedCodesFromRows(rowsNumeroMaxOp)...)
 				_, err = handler.GetPassword()
 				if err != nil {
 					fmt.Println("Error:", err)
@@ -811,10 +823,22 @@ func main() {
 					}
 				}
 				accionDetalles = map[string]interface{}{"bancos": bancosTiempo, "NumeroMaximoDeSolicitudesPorOperacion": valorNumeroMaxPorOperacion}
-				fmt.Println("Configuración después de aplicar cambios:")
-				mostrarTablaConfig(cfg)
-
+				//fmt.Println("Configuración después de aplicar cambios:")
+				mostrarTablaConfig(cfg, tituloTablaCfgDespues, selectedCodesFromRows(rowsNumeroMaxOp)...)
 			case 6:
+				//Mostrar Configuración actual
+				fmt.Println("Configuración actual:")
+				mostrarTablaConfig(cfg, tituloTablaCfg, selectedCodesFromRows(selectedRows)...)
+
+				continue
+			case 7:
+				//Mostrar Health check actual
+				fmt.Println("Verificando conexion, espere por favor:")
+				health := api.RunHealthCheck(cfg)
+				tablaHealthCheck(health, tituloHealth, healthFilterNamesFromCodes(cfg, selectedCodesFromRows(selectedRows))...)
+
+				continue
+			case 8:
 				// Volver al menú anterior = menú de ambiente (Producción/Desarrollo)
 				menuLoop = false
 				continue
@@ -831,16 +855,15 @@ func main() {
 
 			// Health check y tabla ANTES de enviar a los bancos, para poder revisar el estado
 			if bancosPre, ok := accionDetalles["bancos"].([]string); ok && len(bancosPre) > 0 {
-				if accionNombre == "activar_desactivar_ms" {
-					fmt.Println("Health check antes de enviar (Activar/Desactivar servicio de solicitud de estado):")
-				} else {
-					fmt.Println("Health check antes de enviar la configuración a los bancos:")
-				}
+				//if accionNombre == "activar_desactivar_ms" {
+				//	fmt.Println("Health check antes de enviar (Activar/Desactivar servicio de solicitud de estado):")
+				//}
+				// else {
+				//	fmt.Println("Health check antes de enviar la configuración a los bancos:")
+				//}
+				fmt.Println("Verificando conexion, espere por favor:")
 				healthPre := api.RunHealthCheck(cfg)
-				tablaHealthCheck(healthPre)
-				fmt.Print("Presione Enter para enviar la configuración a los bancos...")
-				var enterPre string
-				fmt.Scanln(&enterPre)
+				tablaHealthCheck(healthPre, tituloHealthAntesEnviar, healthFilterNamesFromCodes(cfg, bancosPre)...)
 			}
 
 			// Enviar actualización solest a cada banco modificado
@@ -881,14 +904,17 @@ func main() {
 
 			// Health check al final de la opción elegida (después de guardar y enviar a bancos).
 			// Se muestra la tabla para todas las opciones, incluida Activar/Desactivar MS en bancos.
-			if accionNombre == "activar_desactivar_ms" {
-				fmt.Println("Health check después de Activar/Desactivar servicio de solicitud de estado:")
-			}
+
+			//if accionNombre == "activar_desactivar_ms" {
+			//	fmt.Println("Health check después de Activar/Desactivar servicio de solicitud de estado:")
+			//}
+			fmt.Println("Verificando conexion, espere por favor:")
 			health := api.RunHealthCheck(cfg)
-			tablaHealthCheck(health)
-			fmt.Print("Presione Enter para continuar...")
-			var enter string
-			fmt.Scanln(&enter)
+			bancosPost := make([]string, 0)
+			if bancos, ok := accionDetalles["bancos"].([]string); ok {
+				bancosPost = bancos
+			}
+			tablaHealthCheck(health, tituloHealthDespuesEnviar, healthFilterNamesFromCodes(cfg, bancosPost)...)
 
 			configPath, _ := handler.GetConfigPath(env)
 			fmt.Println("\n\nConfiguración guardada en:", configPath)
@@ -946,9 +972,9 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 	t.SetStyles(s)
 	var m src.TableModel
 	if singleSelect {
-		m = src.NewTableModelSingleSelectWithHeader(t, "Selección de banco")
+		m = src.NewTableModelSingleSelectWithHeader(t, "Lista de banco")
 	} else {
-		m = src.NewTableModelWithHeader(t, "Selección de bancos")
+		m = src.NewTableModelWithHeader(t, "Lista de bancos")
 	}
 	finalModel, err := tea.NewProgram(m).Run()
 	if err != nil {
@@ -968,7 +994,31 @@ func runBankTable(cfg handler.Config, singleSelect bool) ([]table.Row, error) {
 
 // tabla health check
 
-func mostrarTablaConfig(cfg handler.Config) {
+func selectedCodesFromRows(rows []table.Row) []string {
+	codes := make([]string, 0, len(rows))
+	for _, row := range rows {
+		if len(row) < 1 || row[0] == "" {
+			continue
+		}
+		codes = append(codes, row[0])
+	}
+	return codes
+}
+
+func healthFilterNamesFromCodes(cfg handler.Config, codes []string) []string {
+	names := make([]string, 0, len(codes))
+	for _, code := range codes {
+		if b, ok := cfg[code]; ok {
+			names = append(names, b.Nombre)
+		}
+	}
+	return names
+}
+
+func mostrarTablaConfig(cfg handler.Config, title string, filterCodes ...string) {
+	if title == "" {
+		title = tituloTablaCfg
+	}
 	if len(cfg) == 0 {
 		fmt.Println("No hay datos de configuración para mostrar.")
 		return
@@ -983,11 +1033,29 @@ func mostrarTablaConfig(cfg handler.Config) {
 		{Title: "Sol/Bucle", Width: 10},
 		{Title: "Max Sol/Op", Width: 11},
 	}
+	filterSet := make(map[string]struct{}, len(filterCodes))
+	for _, code := range filterCodes {
+		if code == "" {
+			continue
+		}
+		filterSet[code] = struct{}{}
+	}
+	applyFilter := len(filterSet) > 0
+
 	codes := make([]string, 0, len(cfg))
 	for code := range cfg {
+		if applyFilter {
+			if _, ok := filterSet[code]; !ok {
+				continue
+			}
+		}
 		codes = append(codes, code)
 	}
 	sort.Strings(codes)
+	if len(codes) == 0 {
+		fmt.Println("No hay bancos seleccionados para mostrar.")
+		return
+	}
 	rows := make([]table.Row, 0, len(codes))
 	for _, code := range codes {
 		b := cfg[code]
@@ -1023,7 +1091,7 @@ func mostrarTablaConfig(cfg handler.Config) {
 		Background(lipgloss.Color("20")).
 		Bold(false)
 	t.SetStyles(s)
-	m := src.NewTableViewModelWithHeader(t, "Configuración actual")
+	m := src.NewTableViewModelWithHeader(t, title)
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error al mostrar tabla de configuración:", err)
 	}
@@ -1035,32 +1103,44 @@ func healthEstadoParaTabla(raw string) string {
 	case raw == "sin IP en configuración":
 		return "Sin IP en configuración"
 	case strings.HasPrefix(raw, "OFFLINE:"):
-		return "OFFLINE"
-	case raw == "ONLINE":
-		return "ONLINE"
+		return "Sin conexion"
+	case raw == "Conectado":
+		return "Conectado"
 	case strings.HasPrefix(raw, "HTTP "):
-		return "ONLINE"
+		return "Conectado"
 	default:
 		return raw
 	}
 }
 
-func tablaHealthCheck(health api.HealthResponse) {
+func tablaHealthCheck(health api.HealthResponse, title string, filterBanks ...string) {
+	if title == "" {
+		title = tituloHealth
+	}
 	columns := []table.Column{
 		{Title: "Banco", Width: 40},
 		{Title: "Estado", Width: 40},
 	}
+	filterSet := make(map[string]struct{}, len(filterBanks))
+	for _, bank := range filterBanks {
+		if bank == "" {
+			continue
+		}
+		filterSet[bank] = struct{}{}
+	}
+	applyFilter := len(filterSet) > 0
+
 	names := make([]string, 0, len(health.Checks))
 	for n := range health.Checks {
+		if applyFilter {
+			if _, ok := filterSet[n]; !ok {
+				continue
+			}
+		}
 		names = append(names, n)
 	}
 	sort.Strings(names)
-	rows := make([]table.Row, 0, len(names)+1)
-	estadoGeneral := "Sin errores"
-	if health.Status == "Error" {
-		estadoGeneral = "Hay errores"
-	}
-	rows = append(rows, table.Row{"Estado general", estadoGeneral})
+	rows := make([]table.Row, 0, len(names))
 	for _, n := range names {
 		rows = append(rows, table.Row{n, healthEstadoParaTabla(health.Checks[n])})
 	}
@@ -1081,7 +1161,7 @@ func tablaHealthCheck(health api.HealthResponse) {
 		Background(lipgloss.Color("20")).
 		Bold(false)
 	t.SetStyles(s)
-	m := src.NewTableViewModelWithHeader(t, "Health check")
+	m := src.NewTableViewModelWithHeader(t, title)
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error al mostrar health check:", err)
 	}
