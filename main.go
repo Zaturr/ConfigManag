@@ -33,6 +33,8 @@ const (
 	tituloHealth               = "Conexión con los bancos"
 )
 
+var successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("226"))
+
 func main() {
 
 	fmt.Print("\033[8;30;143t")
@@ -578,16 +580,12 @@ func main() {
 						valorTiempoBucle, err = strconv.Atoi(newTiempoBucle)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+
 							continue
 						}
 						if valorTiempoBucle < 1 || valorTiempoBucle > 20 {
 							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+
 							continue
 						}
 						valorConfirmado = true
@@ -659,7 +657,7 @@ func main() {
 					}
 					valorConfirmadoSolBucle := false
 					for {
-						NumeroSolBucle := handler.NewEditNumeroSolBucle("20")
+						NumeroSolBucle := handler.NewEditNumeroSolBucle("120")
 						NumeroSolBucleFinal, err := tea.NewProgram(NumeroSolBucle).Run()
 						if err != nil {
 							fmt.Println("Error:", err)
@@ -673,16 +671,11 @@ func main() {
 						valorNumeroSolBucle, err = strconv.Atoi(newNumeroSolBucle)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+
 							continue
 						}
-						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 20 {
-							fmt.Println("El valor debe estar entre 1 y 20. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+						if valorNumeroSolBucle < 1 || valorNumeroSolBucle > 120 {
+							fmt.Println("El valor debe estar entre 1 y 120. Intente de nuevo o cancele con q.")
 							continue
 						}
 						valorConfirmadoSolBucle = true
@@ -767,16 +760,12 @@ func main() {
 						valorNumeroMaxPorOperacion, err = strconv.Atoi(newNumeroMaxPorOperacion)
 						if err != nil {
 							fmt.Println("Solo se permiten números. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+
 							continue
 						}
 						if valorNumeroMaxPorOperacion < 1 || valorNumeroMaxPorOperacion > 15 {
 							fmt.Println("El valor debe estar entre 1 y 15. Intente de nuevo o cancele con q.")
-							//fmt.Print("Presione Enter para continuar...")
-							//var discard string
-							//fmt.Scanln(&discard)
+
 							continue
 						}
 						valorConfirmadoMaxOp = true
@@ -855,21 +844,23 @@ func main() {
 
 			// Health check y tabla ANTES de enviar a los bancos, para poder revisar el estado
 			if bancosPre, ok := accionDetalles["bancos"].([]string); ok && len(bancosPre) > 0 {
-				//if accionNombre == "activar_desactivar_ms" {
-				//	fmt.Println("Health check antes de enviar (Activar/Desactivar servicio de solicitud de estado):")
-				//}
-				// else {
-				//	fmt.Println("Health check antes de enviar la configuración a los bancos:")
-				//}
+
 				fmt.Println("Verificando conexion, espere por favor:")
 				healthPre := api.RunHealthCheck(cfg)
 				tablaHealthCheck(healthPre, tituloHealthAntesEnviar, healthFilterNamesFromCodes(cfg, bancosPre)...)
+			}
+
+			loading := src.NewLoadingModel("Cargando configuración...")
+			if _, err := tea.NewProgram(loading).Run(); err != nil {
+				fmt.Println("Se presentó un error al cargar la configuración:", err)
+				os.Exit(1)
 			}
 
 			// Enviar actualización solest a cada banco modificado
 			SolestStatus := make(map[string]int)
 			var mu sync.Mutex
 			if bancos, ok := accionDetalles["bancos"].([]string); ok {
+
 				var wg sync.WaitGroup
 				for _, codigoBanco := range bancos {
 					wg.Add(1)
@@ -901,13 +892,7 @@ func main() {
 				}
 				wg.Wait()
 			}
-
-			// Health check al final de la opción elegida (después de guardar y enviar a bancos).
-			// Se muestra la tabla para todas las opciones, incluida Activar/Desactivar MS en bancos.
-
-			//if accionNombre == "activar_desactivar_ms" {
-			//	fmt.Println("Health check después de Activar/Desactivar servicio de solicitud de estado:")
-			//}
+			fmt.Print(successStyle.Render("\nConfiguración enviada a los bancos\n"))
 			fmt.Println("Verificando conexion, espere por favor:")
 			health := api.RunHealthCheck(cfg)
 			bancosPost := make([]string, 0)
@@ -920,12 +905,6 @@ func main() {
 			fmt.Println("\n\nConfiguración guardada en:", configPath)
 
 			handler.LogAccion(accionNombre, env, accionDetalles)
-
-			loading := src.NewLoadingModel("Cargando configuración...")
-			if _, err := tea.NewProgram(loading).Run(); err != nil {
-				fmt.Println("Se presentó un error al cargar la configuración:", err)
-				os.Exit(1)
-			}
 
 			fmt.Println("Listo.")
 			continue
@@ -1099,17 +1078,27 @@ func mostrarTablaConfig(cfg handler.Config, title string, filterCodes ...string)
 
 // healthEstadoParaTabla traduce el texto del health check a un estado claro para la tabla.
 func healthEstadoParaTabla(raw string) string {
+	raw = strings.TrimSpace(raw)
+	lowerRaw := strings.ToLower(raw)
 	switch {
-	case raw == "sin IP en configuración":
-		return "Sin IP en configuración"
-	case strings.HasPrefix(raw, "OFFLINE:"):
+	case raw == "":
 		return "Sin conexion"
-	case raw == "Conectado":
-		return "Conectado"
-	case strings.HasPrefix(raw, "HTTP "):
-		return "Conectado"
+	case raw == "sin IP en configuración":
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "connection refused"):
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "no such host"):
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "timeout"):
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "deadline exceeded"):
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "network is unreachable"):
+		return "Sin conexion"
+	case strings.Contains(lowerRaw, "actively refused"):
+		return "Sin conexion"
 	default:
-		return raw
+		return "Con conexion"
 	}
 }
 

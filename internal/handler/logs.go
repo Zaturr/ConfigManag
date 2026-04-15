@@ -114,6 +114,25 @@ func LogTrace(msg string, detalles map[string]interface{}) {
 	ev.Msg(msg)
 }
 
+func LogHealthCheck(banco, url, resultado string, statusCode int, status, responseBody string) {
+	if apiLogger == nil {
+		return
+	}
+	response := responseBody
+	if response == "" {
+		response = resultado
+	}
+	ev := apiLogger.Info().
+		Str("banco", banco).
+		Str("url", url).
+		Int("status_code", statusCode).
+		Str("response", response)
+	if status != "" {
+		ev = ev.Str("status", status)
+	}
+	ev.Msg("Health check")
+}
+
 func LogAccion(accion, entorno string, detalles map[string]interface{}) {
 	if auditLogger == nil {
 		return

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -15,7 +16,8 @@ import (
 // Endpoint de health hardcodeado.
 const (
 	healthCheckPort = "8082"
-	healthCheckPath = "/simf/api/v1/health"
+	healthCheckPath = "/estatusrest"
+	healthTimeout   = 12 * time.Second
 )
 
 type HealthResponse struct {
@@ -31,7 +33,7 @@ func RunHealthCheck(cfg handler.Config) HealthResponse {
 		Status: "UP",
 		Checks: make(map[string]string),
 	}
-	client := &http.Client{Timeout: 5 * time.Second}
+	client := &http.Client{Timeout: healthTimeout}
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	for _, banco := range cfg {
@@ -45,6 +47,14 @@ func RunHealthCheck(cfg handler.Config) HealthResponse {
 				resp.Checks[banco.Nombre] = "sin IP en configuración"
 				resp.Status = "Error"
 				mu.Unlock()
+				handler.LogHealthCheck(
+					banco.Nombre,
+					"",
+					"sin IP en configuración",
+					-1,
+					"",
+					"",
+				)
 				return
 			}
 			path := healthCheckPath
@@ -54,23 +64,50 @@ func RunHealthCheck(cfg handler.Config) HealthResponse {
 			urlHealth := "http://" + ip + ":" + healthCheckPort + path
 			r, err := client.Get(urlHealth)
 			if err != nil {
+				rawErr := err.Error()
+				statusCode := -1
+				if strings.Contains(strings.ToLower(rawErr), "timeout") ||
+					strings.Contains(strings.ToLower(rawErr), "deadline exceeded") {
+					statusCode = http.StatusRequestTimeout
+				}
 				mu.Lock()
-				resp.Checks[banco.Nombre] = "OFFLINE: " + err.Error()
+				resp.Checks[banco.Nombre] = rawErr
 				resp.Status = "Error"
 				mu.Unlock()
+				handler.LogHealthCheck(
+					banco.Nombre,
+					urlHealth,
+					rawErr,
+					statusCode,
+					"",
+					"",
+				)
 				return
 			}
+			bodyBytes, readErr := io.ReadAll(r.Body)
 			r.Body.Close()
-			status := "ONLINE"
-			if r.StatusCode >= 400 {
-				status = "HTTP " + r.Status
+			rawBody := strings.TrimSpace(string(bodyBytes))
+			received := strings.TrimSpace(r.Status)
+			if rawBody != "" {
+				received = rawBody
+			}
+			if received == "" {
+				received = "respuesta vacía"
+			}
+			if readErr != nil {
+				received = received + " | error leyendo body: " + readErr.Error()
 			}
 			mu.Lock()
-			resp.Checks[banco.Nombre] = status
-			if r.StatusCode >= 400 {
-				resp.Status = "Error"
-			}
+			resp.Checks[banco.Nombre] = received
 			mu.Unlock()
+			handler.LogHealthCheck(
+				banco.Nombre,
+				urlHealth,
+				received,
+				r.StatusCode,
+				r.Status,
+				rawBody,
+			)
 		}()
 	}
 	wg.Wait()
