@@ -33,7 +33,11 @@ const (
 	tituloHealth               = "Conexión con los bancos"
 )
 
-var successStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("226"))
+var (
+	successStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("226"))
+	healthOkStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("2")).Bold(true)
+	healthOfflineStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true)
+)
 
 func main() {
 
@@ -870,7 +874,8 @@ func main() {
 						client := &http.Client{Timeout: 10 * time.Second}
 						resp, err := client.Post(url, "application/json", nil)
 						if err != nil {
-							fmt.Println("Error al enviar la configuración al banco", codigoBanco, ":", err)
+							msgErrorEnvio := fmt.Sprintf("Error al enviar la configuración al banco %s: %v", codigoBanco, err)
+							fmt.Println(healthOfflineStyle.Render(msgErrorEnvio))
 							mu.Lock()
 							if b, ok := cfg[codigoBanco]; ok {
 								SolestStatus[b.Nombre] = 0
@@ -892,8 +897,8 @@ func main() {
 				}
 				wg.Wait()
 			}
-			fmt.Print(successStyle.Render("\nConfiguración enviada a los bancos\n"))
-			fmt.Println("Verificando conexion, espere por favor:")
+			fmt.Print(successStyle.Render("\n\nConfiguración enviada a los bancos\n"))
+			fmt.Println("\nVerificando conexion, espere por favor:")
 			health := api.RunHealthCheck(cfg)
 			bancosPost := make([]string, 0)
 			if bancos, ok := accionDetalles["bancos"].([]string); ok {
@@ -1131,7 +1136,12 @@ func tablaHealthCheck(health api.HealthResponse, title string, filterBanks ...st
 	sort.Strings(names)
 	rows := make([]table.Row, 0, len(names))
 	for _, n := range names {
-		rows = append(rows, table.Row{n, healthEstadoParaTabla(health.Checks[n])})
+		estado := healthEstadoParaTabla(health.Checks[n])
+		estadoConColor := healthOkStyle.Render(estado)
+		if estado == "Sin conexion" {
+			estadoConColor = healthOfflineStyle.Render(estado)
+		}
+		rows = append(rows, table.Row{n, estadoConColor})
 	}
 	t := table.New(
 		table.WithColumns(columns),
